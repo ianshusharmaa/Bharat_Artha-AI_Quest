@@ -18,8 +18,7 @@ const Navbar = () => {
         <div className="flex space-x-6">
           <NavItem href="/game" label="Game Modes" />
           <NavItem href="/game/quiz" label="Quiz" />
-          <NavItem href="/game/simulation" label="Simulation" />
-          <NavItem href="/game/story" label="Story" />
+          <NavItem href="/profile" label="Profile" />
         </div>
       </div>
     </nav>
