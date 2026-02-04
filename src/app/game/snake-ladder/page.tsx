@@ -107,12 +107,23 @@ const SnakeLadderPage = () => {
   const [streak, setStreak] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
+  const [questionOrder, setQuestionOrder] = useState<Question[]>([]);
+  const [lastQuestionId, setLastQuestionId] = useState<number | null>(null);
 
-  const shuffledQuestions = useMemo(() => {
-    return [...questions].sort(() => Math.random() - 0.5);
+  const shuffleQuestions = (avoidId?: number | null) => {
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    if (avoidId && shuffled[0]?.id === avoidId && shuffled.length > 1) {
+      const first = shuffled.shift();
+      if (first) shuffled.push(first);
+    }
+    return shuffled;
+  };
+
+  useEffect(() => {
+    setQuestionOrder(shuffleQuestions(null));
   }, []);
 
-  const question = shuffledQuestions[currentQuestionIndex % shuffledQuestions.length];
+  const question = questionOrder[currentQuestionIndex] || questions[0];
 
   useEffect(() => {
     const soundSetting = localStorage.getItem('soundEnabled');
@@ -180,7 +191,14 @@ const SnakeLadderPage = () => {
 
       setSelected(null);
       setShowResult(false);
-      setCurrentQuestionIndex(prev => prev + 1);
+      setLastQuestionId(question.id);
+      setCurrentQuestionIndex(prev => {
+        if (prev + 1 >= questionOrder.length) {
+          setQuestionOrder(shuffleQuestions(question.id));
+          return 0;
+        }
+        return prev + 1;
+      });
     }, 1500);
   };
 
@@ -197,6 +215,8 @@ const SnakeLadderPage = () => {
     setWrongCount(0);
     setStreak(0);
     setLastMoneyChange(0);
+    setLastQuestionId(null);
+    setQuestionOrder(shuffleQuestions(null));
   };
 
   const totalAnswered = correctCount + wrongCount;

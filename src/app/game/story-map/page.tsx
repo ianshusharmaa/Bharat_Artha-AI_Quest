@@ -83,8 +83,9 @@ const StoryMapPage = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
+  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
 
-  const totalSteps = questions.length;
+  const totalSteps = shuffledQuestions.length || questions.length;
   const pathPositions = Array.from({ length: totalSteps + 1 }, (_, i) => i);
 
   useEffect(() => {
@@ -94,11 +95,17 @@ const StoryMapPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    setShuffledQuestions(shuffled);
+  }, []);
+
   const handleAnswer = (answerIndex: number) => {
     if (selected !== null) return;
     
     setSelected(answerIndex);
-    const correct = answerIndex === questions[currentQuestion].correctAnswer;
+    const current = shuffledQuestions[currentQuestion] || questions[currentQuestion];
+    const correct = answerIndex === current.correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
 
@@ -108,8 +115,8 @@ const StoryMapPage = () => {
     }
 
     const moneyChange = correct 
-      ? questions[currentQuestion].moneyEffect.correct 
-      : questions[currentQuestion].moneyEffect.wrong;
+      ? current.moneyEffect.correct 
+      : current.moneyEffect.wrong;
     setLastMoneyChange(moneyChange);
     if (correct) {
       setCorrectCount(prev => prev + 1);
@@ -120,7 +127,7 @@ const StoryMapPage = () => {
     setMoney(prev => prev + moneyChange);
 
     setTimeout(() => {
-      if (currentQuestion < questions.length - 1) {
+      if (currentQuestion < (shuffledQuestions.length || questions.length) - 1) {
         setPosition(position + 1);
         setCurrentQuestion(currentQuestion + 1);
         setSelected(null);
@@ -144,6 +151,8 @@ const StoryMapPage = () => {
     setCorrectCount(0);
     setWrongCount(0);
     setLastMoneyChange(0);
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    setShuffledQuestions(shuffled);
   };
 
   const profit = money - 1000;
@@ -260,15 +269,15 @@ const StoryMapPage = () => {
                   <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Accuracy: {accuracy}%</span>
                 </div>
                 <p className="text-lg text-[var(--foreground)]">
-                  {questions[currentQuestion].question}
+                  {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).question}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {questions[currentQuestion].options.map((option, idx) => {
+                {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).options.map((option, idx) => {
                   let btnColor = 'bg-[var(--primary)] text-white';
                   if (selected !== null) {
-                    if (idx === questions[currentQuestion].correctAnswer) {
+                    if (idx === (shuffledQuestions[currentQuestion] || questions[currentQuestion]).correctAnswer) {
                       btnColor = 'bg-green-500 text-white';
                     } else if (idx === selected) {
                       btnColor = 'bg-red-500 text-white';
@@ -304,7 +313,7 @@ const StoryMapPage = () => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-700">
-                    💡 {questions[currentQuestion].explanation}
+                    💡 {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).explanation}
                   </p>
                 </div>
               )}
