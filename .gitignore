@@ -40,3 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 public/sounds/correct.wav
+public/sounds/*.exe
