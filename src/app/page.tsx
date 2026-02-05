@@ -39,7 +39,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50 p-8">
       <div className="bg-white border-2 border-blue-200 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
         <div className="flex justify-center mb-6">
-          <img src="/logo.svg" alt="Logo" width={80} height={80} className="drop-shadow-lg" />
+          <img src="/sounds/logo.png" alt="Logo" width={80} height={80} className="drop-shadow-lg" />
         </div>
         <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent mb-3">
           {t.welcome}

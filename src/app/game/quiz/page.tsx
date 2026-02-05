@@ -90,22 +90,28 @@ const QuizPage = () => {
     all: t.allLevels
   } as const;
 
-  const playFeedbackSound = (isCorrect: boolean) => {
+  const speakFeedback = (isCorrect: boolean) => {
     if (typeof window === 'undefined') return;
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const enText = isCorrect ? 'Correct answer.' : 'Wrong answer.';
+    const hiText = isCorrect ? 'आपका उत्तर सही है।' : 'आपका उत्तर गलत है।';
     try {
-      const ctx = new AudioCtx();
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = isCorrect ? 880 : 220;
-      gainNode.gain.value = 0.12;
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.18);
-      oscillator.onended = () => ctx.close();
+      synth.cancel();
+      const enUtterance = new SpeechSynthesisUtterance(enText);
+      enUtterance.lang = 'en-US';
+      enUtterance.rate = 0.95;
+      enUtterance.pitch = 1;
+      enUtterance.volume = 1;
+
+      const hiUtterance = new SpeechSynthesisUtterance(hiText);
+      hiUtterance.lang = 'hi-IN';
+      hiUtterance.rate = 0.95;
+      hiUtterance.pitch = 1;
+      hiUtterance.volume = 1;
+
+      synth.speak(enUtterance);
+      synth.speak(hiUtterance);
     } catch {
       // ignore audio errors
     }
@@ -192,10 +198,10 @@ const QuizPage = () => {
   const handleAnswerOptionClick = (selectedAnswerIndex: number) => {
     setSelected(selectedAnswerIndex);
     setTimerActive(false);
-    // Play sound
+    // Speak feedback (English + Hindi)
     const isCorrect = selectedAnswerIndex === filteredQuestions[currentQuestionIndex].correctAnswer;
     if (soundEnabled) {
-      playFeedbackSound(isCorrect);
+      speakFeedback(isCorrect);
     }
     setShowExplanation(true);
     setTimeout(() => {
