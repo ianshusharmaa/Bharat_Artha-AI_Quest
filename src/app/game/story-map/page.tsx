@@ -225,6 +225,38 @@ const questions: Question[] = [
       en: 'Responsible credit card use builds credit score and gives benefits!',
       hi: 'जिम्मेदार उपयोग से क्रेडिट स्कोर बनता है और फायदे मिलते हैं!'
     }
+  },
+  {
+    question: {
+      en: 'You buy insurance for your bike. Why is it useful?',
+      hi: 'आपने बाइक का बीमा लिया। यह क्यों उपयोगी है?'
+    },
+    options: {
+      en: ['It looks cool', 'It protects against accidental losses', 'It reduces petrol cost', 'It increases speed'],
+      hi: ['यह अच्छा दिखता है', 'यह दुर्घटना से नुकसान से बचाता है', 'यह पेट्रोल खर्च घटाता है', 'यह गति बढ़ाता है']
+    },
+    correctAnswer: 1,
+    moneyEffect: { correct: 150, wrong: -250 },
+    explanation: {
+      en: 'Insurance reduces financial risk during accidents or damage.',
+      hi: 'बीमा दुर्घटना या नुकसान के समय वित्तीय जोखिम कम करता है।'
+    }
+  },
+  {
+    question: {
+      en: 'You get a bonus. What is a smart choice?',
+      hi: 'आपको बोनस मिला। समझदारी भरा कदम क्या होगा?'
+    },
+    options: {
+      en: ['Spend everything', 'Save a part and invest a part', 'Lend it to anyone', 'Ignore savings'],
+      hi: ['सब खर्च कर दें', 'कुछ बचाएं और कुछ निवेश करें', 'किसी को भी उधार दे दें', 'बचत को नजरअंदाज करें']
+    },
+    correctAnswer: 1,
+    moneyEffect: { correct: 250, wrong: -200 },
+    explanation: {
+      en: 'Splitting between saving and investing builds long-term wealth.',
+      hi: 'बचत और निवेश में बांटने से लंबे समय में संपत्ति बढ़ती है।'
+    }
   }
 ];
 

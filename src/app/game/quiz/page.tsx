@@ -32,6 +32,8 @@ const translations = {
     restartQuiz: 'क्विज पुनः शुरू करें',
     returnLobby: 'लॉबी में वापस जाएं',
     category: 'श्रेणी',
+    correctFeedback: 'Correct answer. आपका उत्तर सही है।',
+    wrongFeedback: 'Wrong answer. आपका उत्तर गलत है।',
     footer: '© 2026 वित्तीय साक्षरता अभियान'
   },
   en: {
@@ -62,6 +64,8 @@ const translations = {
     restartQuiz: 'Restart Quiz',
     returnLobby: 'Return to Lobby',
     category: 'Category',
+    correctFeedback: 'Correct answer. आपका उत्तर सही है।',
+    wrongFeedback: 'Wrong answer. आपका उत्तर गलत है।',
     footer: '© 2026 Financial Literacy Adventure'
   }
 };
@@ -80,6 +84,7 @@ const QuizPage = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [feedbackText, setFeedbackText] = useState<string | null>(null);
 
   const t = translations[lang];
 
@@ -203,6 +208,7 @@ const QuizPage = () => {
     if (soundEnabled) {
       speakFeedback(isCorrect);
     }
+    setFeedbackText(isCorrect ? t.correctFeedback : t.wrongFeedback);
     setShowExplanation(true);
     setTimeout(() => {
       const nextScore = isCorrect ? score + 1 : score;
@@ -211,6 +217,7 @@ const QuizPage = () => {
       }
       setUserAnswers([...userAnswers, selectedAnswerIndex]);
       setShowExplanation(false);
+      setFeedbackText(null);
       setSelected(null);
       const nextQuestion = currentQuestionIndex + 1;
       if (nextQuestion < filteredQuestions.length) {
@@ -429,6 +436,11 @@ const QuizPage = () => {
                   );
                 })}
               </div>
+              {feedbackText && (
+                <div className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900" aria-live="polite">
+                  {feedbackText}
+                </div>
+              )}
               {showExplanation && (
                 <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 rounded animate-fade-in">
                   <span className="font-semibold">{t.hint}</span> {filteredQuestions[currentQuestionIndex].explanation[lang]}

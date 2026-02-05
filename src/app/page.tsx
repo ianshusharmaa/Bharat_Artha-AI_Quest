@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const languages = [
   { code: "en", label: "English" },
@@ -13,12 +14,24 @@ const translations = {
     subtitle: "Master Financial Literacy Through AI-Powered Games",
     selectLanguage: "Select your language / अपनी भाषा चुनें",
     start: "Start",
+    featuresTitle: "Why you will love it",
+    features: [
+      "AI-powered, game-based learning",
+      "Bilingual guidance (English + हिन्दी)",
+      "Offline-friendly audio support"
+    ]
   },
   hi: {
     welcome: "भारत अर्थ-AI Quest",
     subtitle: "AI-संचालित खेलों के माध्यम से वित्तीय साक्षरता में महारत हासिल करें",
     selectLanguage: "अपनी भाषा चुनें / Select your language",
     start: "शुरू करें",
+    featuresTitle: "यह क्यों पसंद आएगा",
+    features: [
+      "AI-संचालित, गेम आधारित सीख",
+      "द्विभाषी सहायता (English + हिन्दी)",
+      "ऑफलाइन ऑडियो सपोर्ट"
+    ]
   }
 };
 
@@ -37,9 +50,9 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-green-50 p-8">
-      <div className="bg-white border-2 border-blue-200 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
+      <div className="bg-white border-2 border-blue-200 rounded-3xl shadow-2xl p-10 md:p-12 max-w-3xl w-full text-center">
         <div className="flex justify-center mb-6">
-          <img src="/sounds/logo.png" alt="Logo" width={80} height={80} className="drop-shadow-lg" />
+          <Image src="/sounds/logo.png" alt="Logo" width={80} height={80} className="drop-shadow-lg" priority />
         </div>
         <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent mb-3">
           {t.welcome}
@@ -64,6 +77,17 @@ export default function Home() {
         >
           {t.start}
         </button>
+
+        <div className="mt-10 text-left">
+          <h2 className="text-xl font-bold text-[var(--primary)] mb-4 text-center">{t.featuresTitle}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {t.features.map((feature) => (
+              <div key={feature} className="p-4 rounded-xl border border-blue-100 bg-blue-50/40">
+                <span className="text-sm font-semibold text-[var(--foreground)]">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -56,6 +56,16 @@ const translations = {
     moneyEarned: 'पैसा अर्जित',
     restart: 'खेल पुनः शुरू करें',
     congratulations: 'बधाई हो!',
+    wrongNoMove: 'गलत उत्तर। इस बार चाल नहीं चलेगी।',
+    movedForward: 'आप आगे बढ़े',
+    movedBackward: 'आप पीछे गए',
+    steps: 'कदम',
+    activityLog: 'गतिविधि लॉग',
+    lastFive: 'पिछली 5 गतिविधियाँ',
+    boardTitle: 'बोर्ड',
+    questionMode: 'प्रश्न मोड',
+    progress: 'प्रगति',
+    turn: 'टर्न'
   },
   en: {
     title: 'Snake and Ladder',
@@ -95,6 +105,16 @@ const translations = {
     moneyEarned: 'Money Earned',
     restart: 'Restart Game',
     congratulations: 'Congratulations!',
+    wrongNoMove: 'Wrong answer. No move this turn.',
+    movedForward: 'You moved forward',
+    movedBackward: 'You moved back',
+    steps: 'steps',
+    activityLog: 'Activity Log',
+    lastFive: 'Last 5 activities',
+    boardTitle: 'Board',
+    questionMode: 'Question Mode',
+    progress: 'Progress',
+    turn: 'Turn'
   }
 };
 
@@ -234,6 +254,57 @@ const questions: Question[] = [
       en: 'You earn interest on your interest too.',
       hi: 'ब्याज पर भी ब्याज मिलता है।'
     }
+  },
+  {
+    id: 9,
+    text: {
+      en: 'Before taking a loan, what should you check first?',
+      hi: 'ऋण लेने से पहले सबसे पहले क्या जांचना चाहिए?'
+    },
+    options: {
+      en: ['Your ability to repay', 'New phone models', 'Festival offers only', 'Friend opinions only'],
+      hi: ['चुकाने की क्षमता', 'नए फोन मॉडल', 'केवल त्योहार ऑफर', 'केवल दोस्तों की राय']
+    },
+    correct: 0,
+    steps: 2,
+    explanation: {
+      en: 'Always check if you can repay comfortably before borrowing.',
+      hi: 'उधार लेने से पहले देखें कि आप आराम से चुका सकते हैं या नहीं।'
+    }
+  },
+  {
+    id: 10,
+    text: {
+      en: 'What is a UPI PIN used for?',
+      hi: 'UPI PIN किस लिए होता है?'
+    },
+    options: {
+      en: ['Authorizing payment', 'Checking balance only', 'Opening a bank account', 'Getting a loan'],
+      hi: ['भुगतान की पुष्टि', 'सिर्फ बैलेंस देखना', 'बैंक खाता खोलना', 'ऋण लेना']
+    },
+    correct: 0,
+    steps: 3,
+    explanation: {
+      en: 'UPI PIN is required to authorize a payment securely.',
+      hi: 'UPI PIN भुगतान की सुरक्षित पुष्टि के लिए जरूरी होता है।'
+    }
+  },
+  {
+    id: 11,
+    text: {
+      en: 'Which is the safest rule for OTP?',
+      hi: 'OTP के लिए सबसे सुरक्षित नियम क्या है?'
+    },
+    options: {
+      en: ['Never share OTP with anyone', 'Share with friends', 'Post it online', 'Tell bank employee on call'],
+      hi: ['OTP किसी से साझा न करें', 'दोस्तों के साथ साझा करें', 'ऑनलाइन पोस्ट करें', 'कॉल पर बैंक कर्मचारी को बताएं']
+    },
+    correct: 0,
+    steps: 2,
+    explanation: {
+      en: 'OTP should never be shared with anyone.',
+      hi: 'OTP कभी किसी के साथ साझा नहीं करना चाहिए।'
+    }
   }
 ];
 
@@ -268,25 +339,32 @@ const SnakeLadderPage = () => {
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
   const [questionOrder, setQuestionOrder] = useState<Question[]>([]);
   const [lastQuestionId, setLastQuestionId] = useState<number | null>(null);
+  const [activity, setActivity] = useState<string[]>([]);
 
   const t = translations[lang];
 
-  const playFeedbackSound = (isCorrect: boolean) => {
+  const speakFeedback = (isCorrect: boolean) => {
     if (typeof window === 'undefined') return;
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
+    const synth = window.speechSynthesis;
+    if (!synth) return;
     try {
-      const ctx = new AudioCtx();
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = isCorrect ? 880 : 220;
-      gainNode.gain.value = 0.12;
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.18);
-      oscillator.onended = () => ctx.close();
+      const enText = isCorrect ? 'Correct answer.' : 'Wrong answer.';
+      const hiText = isCorrect ? 'आपका उत्तर सही है।' : 'आपका उत्तर गलत है।';
+      synth.cancel();
+      const enUtterance = new SpeechSynthesisUtterance(enText);
+      enUtterance.lang = 'en-US';
+      enUtterance.rate = 0.95;
+      enUtterance.pitch = 1;
+      enUtterance.volume = 1;
+
+      const hiUtterance = new SpeechSynthesisUtterance(hiText);
+      hiUtterance.lang = 'hi-IN';
+      hiUtterance.rate = 0.95;
+      hiUtterance.pitch = 1;
+      hiUtterance.volume = 1;
+
+      synth.speak(enUtterance);
+      synth.speak(hiUtterance);
     } catch {
       // ignore audio errors
     }
@@ -324,6 +402,10 @@ const SnakeLadderPage = () => {
     setMessage(translations[lang].answerQuestions);
   }, [lang]);
 
+  const addActivity = (entry: string) => {
+    setActivity(prev => [entry, ...prev].slice(0, 5));
+  };
+
   const question = questionOrder[currentQuestionIndex] || questions[0];
 
   useEffect(() => {
@@ -342,15 +424,26 @@ const SnakeLadderPage = () => {
     if (next > boardSize) {
       next = boardSize;
     }
+    if (next < 1) {
+      next = 1;
+    }
 
     if (ladders[next]) {
       setMessage(`${t.ladder} ${t.youClimb} ${next} ${t.to} ${ladders[next]}.`);
+      addActivity(`🪜 ${t.youClimb} ${next} ${t.to} ${ladders[next]}`);
       next = ladders[next];
     } else if (snakes[next]) {
       setMessage(`${t.snake} ${t.youSlide} ${next} ${t.to} ${snakes[next]}.`);
+      addActivity(`🐍 ${t.youSlide} ${next} ${t.to} ${snakes[next]}`);
       next = snakes[next];
     } else {
-      setMessage(`${t.youClimb} ${steps} ${t.ladder}.`);
+      if (steps > 0) {
+        setMessage(`${t.movedForward} ${steps} ${t.steps}.`);
+        addActivity(`➡️ ${t.movedForward} ${steps} ${t.steps}`);
+      } else {
+        setMessage(`${t.movedBackward} ${Math.abs(steps)} ${t.steps}.`);
+        addActivity(`⬅️ ${t.movedBackward} ${Math.abs(steps)} ${t.steps}`);
+      }
     }
 
     setPosition(next);
@@ -368,7 +461,7 @@ const SnakeLadderPage = () => {
     setShowResult(true);
 
     if (soundEnabled) {
-      playFeedbackSound(correct);
+      speakFeedback(correct);
     }
 
     const moneyChange = correct ? 150 + streak * 20 : -120;
@@ -384,9 +477,9 @@ const SnakeLadderPage = () => {
 
     setTimeout(() => {
       if (correct) {
-        movePlayer(question.steps);
+        movePlayer(1);
       } else {
-        setMessage('Wrong answer. No move this turn.');
+        movePlayer(-1);
       }
 
       setSelected(null);
@@ -417,6 +510,7 @@ const SnakeLadderPage = () => {
     setLastMoneyChange(0);
     setLastQuestionId(null);
     setQuestionOrder(shuffleQuestions(null));
+    setActivity([]);
   };
 
   const totalAnswered = correctCount + wrongCount;
@@ -425,9 +519,21 @@ const SnakeLadderPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)]">
-      <header className="bg-[var(--navbar-bg)] shadow-md p-4 flex justify-between items-center" style={{ boxShadow: 'var(--navbar-shadow)' }}>
-        <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
-        <div className="flex gap-2">
+      <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+            <p className="text-sm text-[var(--foreground)] opacity-70">{t.questionMode}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">{t.turn}: {currentQuestionIndex + 1}</span>
+            <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">{t.progress}: {position}/{boardSize}</span>
+            <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold">{t.accuracyLabel}: {accuracy}%</span>
+            <span className="px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-semibold">{t.streak}: {streak}</span>
+            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">₹{money}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-3">
           <button
             onClick={() => setLanguage('hi')}
             className={`px-3 py-1 rounded ${lang === 'hi' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
@@ -457,35 +563,13 @@ const SnakeLadderPage = () => {
           </Link>
         </div>
       </header>
-      <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[var(--primary)]">Snake & Ladder: Q&A Mode</h1>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const newValue = !soundEnabled;
-                setSoundEnabled(newValue);
-                localStorage.setItem('soundEnabled', JSON.stringify(newValue));
-              }}
-              className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80"
-            >
-              {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
-            </button>
-          <Link href="/game">
-            <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-              Back to Lobby
-            </button>
-          </Link>
-          </div>
-        </div>
-      </header>
 
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-[var(--primary)]">Board</h2>
-              <div className="text-sm text-gray-600">Position: {position}/{boardSize}</div>
+              <h2 className="text-xl font-bold text-[var(--primary)]">{t.boardTitle}</h2>
+              <div className="text-sm text-gray-600">{t.position}: {position}/{boardSize}</div>
             </div>
             <div className="mb-4">
               <div className="w-full h-2 bg-gray-200 rounded-full">
@@ -495,9 +579,9 @@ const SnakeLadderPage = () => {
                 ></div>
               </div>
               <div className="mt-2 flex justify-between text-xs text-gray-600">
-                <span>Accuracy: {accuracy}%</span>
-                <span>Streak: {streak}</span>
-                <span>Money: ₹{money}</span>
+                <span>{t.accuracyLabel}: {accuracy}%</span>
+                <span>{t.streak}: {streak}</span>
+                <span>{t.money}: ₹{money}</span>
               </div>
             </div>
             <div className="grid grid-cols-5 gap-2">
@@ -551,7 +635,7 @@ const SnakeLadderPage = () => {
             ) : (
               <>
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold text-[var(--primary)]">{t.questionLabel} {currentQuestionIndex + 1} ({t.moveSteps} {question.steps})</h2>
+                  <h2 className="text-xl font-bold text-[var(--primary)]">{t.questionLabel} {currentQuestionIndex + 1} ({t.moveSteps} 1)</h2>
                   <p className="text-lg text-[var(--foreground)] mt-2">{question.text[lang]}</p>
                 </div>
                 <div className="grid grid-cols-1 gap-3 mb-4">
@@ -597,6 +681,24 @@ const SnakeLadderPage = () => {
                 <div className="mt-4 text-sm text-gray-700">
                   <p>{t.note}</p>
                   <p className="mt-2 font-semibold">{t.status}: {message}</p>
+                </div>
+
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-bold text-[var(--primary)]">{t.activityLog}</h3>
+                    <span className="text-xs text-gray-500">{t.lastFive}</span>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2 text-sm">
+                    {activity.length === 0 ? (
+                      <span className="text-gray-500">—</span>
+                    ) : (
+                      activity.map((item, idx) => (
+                        <div key={`${item}-${idx}`} className="text-gray-700">
+                          {item}
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </>
             )}

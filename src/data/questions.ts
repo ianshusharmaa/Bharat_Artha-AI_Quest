@@ -631,4 +631,64 @@ export const questions: Question[] = [
     },
     difficulty: 'hard'
   },
+  {
+    question: {
+      en: 'What is UPI used for?',
+      hi: 'UPI किस लिए उपयोग होता है?'
+    },
+    options: {
+      en: ['Instant bank transfers', 'Buying stocks only', 'Printing cash', 'Paying taxes only'],
+      hi: ['तुरंत बैंक ट्रांसफर', 'सिर्फ शेयर खरीदना', 'नकद छापना', 'सिर्फ कर भुगतान']
+    },
+    correctAnswer: 0,
+    explanation: {
+      en: 'UPI enables instant money transfers between bank accounts.',
+      hi: 'UPI से बैंक खातों के बीच तुरंत पैसे ट्रांसफर होते हैं।'
+    },
+    category: {
+      en: 'Banking',
+      hi: 'बैंकिंग'
+    },
+    difficulty: 'easy'
+  },
+  {
+    question: {
+      en: 'What does credit utilization mean?',
+      hi: 'क्रेडिट यूटिलाइजेशन का मतलब क्या है?'
+    },
+    options: {
+      en: ['How much of your credit limit you use', 'Your monthly salary', 'A bank fee', 'Loan interest rate'],
+      hi: ['आप अपनी क्रेडिट लिमिट का कितना उपयोग करते हैं', 'आपका मासिक वेतन', 'एक बैंक शुल्क', 'ऋण की ब्याज दर']
+    },
+    correctAnswer: 0,
+    explanation: {
+      en: 'Credit utilization is the percentage of your available credit you are using.',
+      hi: 'क्रेडिट यूटिलाइजेशन आपकी उपलब्ध क्रेडिट लिमिट का उपयोग प्रतिशत है।'
+    },
+    category: {
+      en: 'Credit',
+      hi: 'क्रेडिट'
+    },
+    difficulty: 'medium'
+  },
+  {
+    question: {
+      en: 'What is a common effect of inflation?',
+      hi: 'महंगाई (इन्फ्लेशन) का सामान्य असर क्या होता है?'
+    },
+    options: {
+      en: ['Prices rise and purchasing power falls', 'Prices fall quickly', 'Money value increases', 'Savings grow automatically'],
+      hi: ['कीमतें बढ़ती हैं और क्रय शक्ति घटती है', 'कीमतें तेजी से गिरती हैं', 'पैसे की कीमत बढ़ती है', 'बचत अपने आप बढ़ती है']
+    },
+    correctAnswer: 0,
+    explanation: {
+      en: 'Inflation reduces purchasing power as prices increase over time.',
+      hi: 'महंगाई से समय के साथ कीमतें बढ़ती हैं और क्रय शक्ति घटती है।'
+    },
+    category: {
+      en: 'Economics',
+      hi: 'अर्थशास्त्र'
+    },
+    difficulty: 'hard'
+  },
 ];
