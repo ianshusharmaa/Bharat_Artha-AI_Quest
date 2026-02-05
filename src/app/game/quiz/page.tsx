@@ -3,7 +3,71 @@
 import React, { useState, useEffect } from 'react';
 import { questions, Question } from '@/data/questions';
 
+const translations = {
+  hi: {
+    title: 'क्विज मोड',
+    soundOn: '🔊 ध्वनि चालू',
+    soundOff: '🔇 ध्वनि बंद',
+    selectDifficulty: 'कठिनाई चुनें',
+    easy: 'आसान',
+    beginners: 'शुरुआती के लिए परफेक्ट',
+    medium: 'माध्यम',
+    testKnowledge: 'अपने ज्ञान को परखें',
+    hard: 'कठिन',
+    expertChallenge: 'विशेषज्ञ स्तर की चुनौती',
+    allLevels: 'सभी स्तर',
+    mixed: 'मिश्रित कठिनाई',
+    timeLeft: 'समय बाकी:',
+    progressBar: 'प्रगति',
+    question: 'प्रश्न',
+    scored: 'आपने बनाए',
+    out: 'में से',
+    difficulty: 'कठिनाई:',
+    percentage: 'प्रतिशत:',
+    yourAnswers: 'आपके उत्तर:',
+    yourAnswer: 'आपका उत्तर:',
+    correct: 'सही:',
+    timeUp: 'समय समाप्त!',
+    hint: 'संकेत:',
+    restartQuiz: 'क्विज पुनः शुरू करें',
+    returnLobby: 'लॉबी में वापस जाएं',
+    category: 'श्रेणी',
+    footer: '© 2026 वित्तीय साक्षरता अभियान'
+  },
+  en: {
+    title: 'Quiz Mode',
+    soundOn: '🔊 Sound On',
+    soundOff: '🔇 Sound Off',
+    selectDifficulty: 'Select Difficulty',
+    easy: 'Easy',
+    beginners: 'Perfect for beginners',
+    medium: 'Medium',
+    testKnowledge: 'Test your knowledge',
+    hard: 'Hard',
+    expertChallenge: 'Expert level challenge',
+    allLevels: 'All Levels',
+    mixed: 'Mixed difficulty',
+    timeLeft: 'Time Left:',
+    progressBar: 'Progress',
+    question: 'Question',
+    scored: 'You scored',
+    out: 'out of',
+    difficulty: 'Difficulty:',
+    percentage: 'Percentage:',
+    yourAnswers: 'Your Answers:',
+    yourAnswer: 'Your answer:',
+    correct: 'Correct:',
+    timeUp: 'Time Up!',
+    hint: 'Hint:',
+    restartQuiz: 'Restart Quiz',
+    returnLobby: 'Return to Lobby',
+    category: 'Category',
+    footer: '© 2026 Financial Literacy Adventure'
+  }
+};
+
 const QuizPage = () => {
+  const [lang, setLang] = useState<'hi' | 'en'>('hi');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'all'>('all');
   const [showDifficultySelect, setShowDifficultySelect] = useState(true);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
@@ -16,6 +80,44 @@ const QuizPage = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const t = translations[lang];
+
+  const difficultyLabels = {
+    easy: t.easy,
+    medium: t.medium,
+    hard: t.hard,
+    all: t.allLevels
+  } as const;
+
+  const playFeedbackSound = (isCorrect: boolean) => {
+    if (typeof window === 'undefined') return;
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    try {
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = isCorrect ? 880 : 220;
+      gainNode.gain.value = 0.12;
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.18);
+      oscillator.onended = () => ctx.close();
+    } catch {
+      // ignore audio errors
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
+    if (savedLang === 'hi' || savedLang === 'en') {
+      setLang(savedLang);
+    }
+  }, []);
 
   useEffect(() => {
     const soundSetting = localStorage.getItem('soundEnabled');
@@ -70,6 +172,13 @@ const QuizPage = () => {
     localStorage.setItem('soundEnabled', JSON.stringify(newValue));
   };
 
+  const setLanguage = (newLang: 'hi' | 'en') => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lang', newLang);
+    }
+  };
+
   const unlockQuizMasterBadge = (finalScore: number) => {
     if (finalScore < 8) return;
     const data = localStorage.getItem("badges");
@@ -86,8 +195,7 @@ const QuizPage = () => {
     // Play sound
     const isCorrect = selectedAnswerIndex === filteredQuestions[currentQuestionIndex].correctAnswer;
     if (soundEnabled) {
-      const audio = new Audio(isCorrect ? '/sounds/correct.wav' : '/sounds/wrong.mp3');
-      audio.play();
+      playFeedbackSound(isCorrect);
     }
     setShowExplanation(true);
     setTimeout(() => {
@@ -123,47 +231,61 @@ const QuizPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)]">
       <header className="bg-[var(--navbar-bg)] shadow-md p-4 flex justify-between items-center" style={{ boxShadow: 'var(--navbar-shadow)' }}>
-        <h1 className="text-2xl font-bold text-[var(--primary)]">Quiz Mode</h1>
-        <button
-          onClick={toggleSound}
-          className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80 transition"
-        >
-          {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
-        </button>
+        <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLanguage('hi')}
+            className={`px-3 py-1 rounded ${lang === 'hi' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+          >
+            हिन्दी
+          </button>
+          <button
+            onClick={() => setLanguage('en')}
+            className={`px-3 py-1 rounded ${lang === 'en' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+          >
+            English
+          </button>
+          <button
+            onClick={toggleSound}
+            className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80 transition"
+          >
+            {soundEnabled ? t.soundOn : t.soundOff}
+          </button>
+        </div>
       </header>
       <main className="flex-grow p-8 flex items-center justify-center">
         <div className="max-w-2xl w-full mx-auto bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl shadow-lg p-8">
           {showDifficultySelect ? (
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-6 text-[var(--primary)]">Select Difficulty</h2>
+              <h2 className="text-3xl font-bold mb-6 text-[var(--primary)]">{t.selectDifficulty}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   onClick={() => startQuiz('easy')}
                   className="bg-green-500 text-white p-6 rounded-lg hover:bg-green-600 transition transform hover:scale-105"
                 >
-                  <h3 className="text-2xl font-bold mb-2">Easy</h3>
-                  <p className="text-sm">Perfect for beginners</p>
+                  <h3 className="text-2xl font-bold mb-2">{t.easy}</h3>
+                  <p className="text-sm">{t.beginners}</p>
                 </button>
                 <button
                   onClick={() => startQuiz('medium')}
                   className="bg-yellow-500 text-white p-6 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105"
                 >
-                  <h3 className="text-2xl font-bold mb-2">Medium</h3>
-                  <p className="text-sm">Test your knowledge</p>
+                  <h3 className="text-2xl font-bold mb-2">{t.medium}</h3>
+                  <p className="text-sm">{t.testKnowledge}</p>
                 </button>
                 <button
                   onClick={() => startQuiz('hard')}
                   className="bg-red-500 text-white p-6 rounded-lg hover:bg-red-600 transition transform hover:scale-105"
                 >
-                  <h3 className="text-2xl font-bold mb-2">Hard</h3>
-                  <p className="text-sm">Expert level challenge</p>
+                  <h3 className="text-2xl font-bold mb-2">{t.hard}</h3>
+                  <p className="text-sm">{t.expertChallenge}</p>
                 </button>
                 <button
                   onClick={() => startQuiz('all')}
                   className="bg-purple-500 text-white p-6 rounded-lg hover:bg-purple-600 transition transform hover:scale-105"
                 >
-                  <h3 className="text-2xl font-bold mb-2">All Levels</h3>
-                  <p className="text-sm">Mixed difficulty</p>
+                  <h3 className="text-2xl font-bold mb-2">{t.allLevels}</h3>
+                  <p className="text-sm">{t.mixed}</p>
                 </button>
               </div>
             </div>
@@ -173,7 +295,7 @@ const QuizPage = () => {
               {!showScore && (
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg font-semibold text-[var(--primary)]">Time Left:</span>
+                    <span className="text-lg font-semibold text-[var(--primary)]">{t.timeLeft}</span>
                     <span className={`text-2xl font-bold ${timeLeft < 10 ? 'text-red-500' : 'text-[var(--primary)]'}`}>
                       {timeLeft}s
                     </span>
@@ -197,28 +319,28 @@ const QuizPage = () => {
               )}
           {showScore ? (
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4 text-[var(--primary)]">You scored {score} out of {filteredQuestions.length}!</h2>
+              <h2 className="text-3xl font-bold mb-4 text-[var(--primary)]">{t.scored} {score} {t.out} {filteredQuestions.length}!</h2>
               <div className="mb-4">
                 <p className="text-lg">
-                  Difficulty: <span className="font-bold capitalize">{difficulty}</span>
+                  {t.difficulty} <span className="font-bold capitalize">{difficultyLabels[difficulty]}</span>
                 </p>
                 <p className="text-lg">
-                  Percentage: <span className="font-bold">{Math.round((score / filteredQuestions.length) * 100)}%</span>
+                  {t.percentage} <span className="font-bold">{Math.round((score / filteredQuestions.length) * 100)}%</span>
                 </p>
               </div>
               <div className="mb-6 text-left max-h-96 overflow-y-auto">
-                <h3 className="text-xl font-semibold mb-2 text-[var(--primary)]">Your Answers:</h3>
+                <h3 className="text-xl font-semibold mb-2 text-[var(--primary)]">{t.yourAnswers}</h3>
                 <ul className="space-y-2">
                   {filteredQuestions.map((q, idx) => (
                     <li key={idx} className="p-3 rounded-lg bg-white border border-gray-200">
                       <div className="font-medium text-[var(--foreground)] mb-1">
-                        Q{idx + 1}: {q.question}
+                        Q{idx + 1}: {q.question[lang]}
                         <span className={`ml-2 text-xs px-2 py-1 rounded ${
                           q.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                           q.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {q.difficulty}
+                          {difficultyLabels[q.difficulty]}
                         </span>
                       </div>
                       <div>
@@ -227,14 +349,14 @@ const QuizPage = () => {
                             ? 'text-green-600 font-semibold'
                             : 'text-red-600 font-semibold'
                         }>
-                          Your answer: {userAnswers[idx] === -1 ? 'Time Up!' : q.options[userAnswers[idx]] || '—'}
+                          {t.yourAnswer} {userAnswers[idx] === -1 ? t.timeUp : q.options[lang][userAnswers[idx]] || '—'}
                         </span>
                         {userAnswers[idx] !== q.correctAnswer && (
-                          <span className="ml-2 text-green-700">(Correct: {q.options[q.correctAnswer]})</span>
+                          <span className="ml-2 text-green-700">({t.correct} {q.options[lang][q.correctAnswer]})</span>
                         )}
                       </div>
                       <div className="text-sm text-gray-600 mt-1">
-                        💡 {q.explanation}
+                        💡 {q.explanation[lang]}
                       </div>
                     </li>
                   ))}
@@ -245,11 +367,11 @@ const QuizPage = () => {
                   onClick={restartQuiz}
                   className="bg-[var(--primary)] text-white font-bold py-3 px-6 rounded-full hover:bg-[var(--secondary)] transition-transform transform hover:scale-105"
                 >
-                  Restart Quiz
+                  {t.restartQuiz}
                 </button>
                 <a href="/game">
                   <button className="bg-gray-600 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-700 transition-transform transform hover:scale-105">
-                    Return to Lobby
+                    {t.returnLobby}
                   </button>
                 </a>
               </div>
@@ -259,21 +381,21 @@ const QuizPage = () => {
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-2xl font-semibold text-[var(--primary)]">
-                    Question {currentQuestionIndex + 1}/{filteredQuestions.length}
+                    {t.question} {currentQuestionIndex + 1}/{filteredQuestions.length}
                   </h2>
                   <span className={`text-xs px-3 py-1 rounded-full ${
                     filteredQuestions[currentQuestionIndex].difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                     filteredQuestions[currentQuestionIndex].difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
                   }`}>
-                    {filteredQuestions[currentQuestionIndex].difficulty.toUpperCase()}
+                    {difficultyLabels[filteredQuestions[currentQuestionIndex].difficulty]}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mb-2">{filteredQuestions[currentQuestionIndex].category}</p>
-                <p className="text-lg text-[var(--foreground)]">{filteredQuestions[currentQuestionIndex].question}</p>
+                <p className="text-sm text-gray-500 mb-2">{t.category}: {filteredQuestions[currentQuestionIndex].category[lang]}</p>
+                <p className="text-lg text-[var(--foreground)]">{filteredQuestions[currentQuestionIndex].question[lang]}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredQuestions[currentQuestionIndex].options.map((option, index) => {
+                {filteredQuestions[currentQuestionIndex].options[lang].map((option, index) => {
                   let btnColor = 'bg-[var(--primary)] text-white';
                   if (selected !== null) {
                     if (index === filteredQuestions[currentQuestionIndex].correctAnswer) {
@@ -303,7 +425,7 @@ const QuizPage = () => {
               </div>
               {showExplanation && (
                 <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 rounded animate-fade-in">
-                  <span className="font-semibold">Hint:</span> {filteredQuestions[currentQuestionIndex].explanation}
+                  <span className="font-semibold">{t.hint}</span> {filteredQuestions[currentQuestionIndex].explanation[lang]}
                 </div>
               )}
             </>
@@ -313,7 +435,7 @@ const QuizPage = () => {
         </div>
       </main>
       <footer className="bg-[var(--navbar-bg)] shadow-md p-4 text-center" style={{ boxShadow: 'var(--navbar-shadow)' }}>
-        <p className="text-[var(--foreground)] opacity-70">© 2026 Financial Literacy Adventure</p>
+        <p className="text-[var(--foreground)] opacity-70">{t.footer}</p>
       </footer>
     </div>
   );

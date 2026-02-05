@@ -3,79 +3,237 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
+interface LocalizedText {
+  en: string;
+  hi: string;
+}
+
 interface Question {
   id: number;
-  text: string;
-  options: string[];
+  text: LocalizedText;
+  options: { en: string[]; hi: string[] };
   correct: number;
   steps: number;
-  explanation: string;
+  explanation: LocalizedText;
 }
+
+const translations = {
+  hi: {
+    title: 'सांप और सीढ़ी',
+    soundOn: '🔊 ध्वनि चालू',
+    soundOff: '🔇 ध्वनि बंद',
+    backToLobby: 'लॉबी में वापस जाएं',
+    answerQuestions: 'आगे बढ़ने के लिए प्रश्नों का उत्तर दें',
+    reachedHome: 'आप घर पहुँच गए!',
+    wellDone: 'बहुत अच्छा! आपने सांप-सीढ़ी यात्रा पूरी की।',
+    finalMoney: 'अंतिम पैसा',
+    profitLoss: 'लाभ/नुकसान',
+    accuracyLabel: 'सटीकता',
+    correctLabel: 'सही',
+    wrongLabel: 'गलत',
+    playAgain: 'फिर से खेलें',
+    questionLabel: 'प्रश्न',
+    moveSteps: 'कदम बढ़ें',
+    wrongAnswerLabel: 'गलत उत्तर',
+    note: 'नोट: सही उत्तर मिलने पर आप प्रश्न के कदम मूल्य के अनुसार आगे बढ़ते हैं।',
+    status: 'स्थिति',
+    position: 'स्थिति',
+    money: 'पैसा',
+    correct: 'सही!',
+    wrong: 'गलत!',
+    ladder: 'सीढ़ी!',
+    youClimb: 'आप चढ़ते हैं',
+    to: 'से',
+    snake: 'सांप!',
+    youSlide: 'आप फिसलते हैं',
+    youReachedEnd: 'आप खेल के अंत तक पहुंच गए!',
+    gameOver: 'खेल समाप्त!',
+    finalStats: 'अंतिम आंकड़े',
+    totalQuestions: 'कुल प्रश्न',
+    correctAnswers: 'सही उत्तर',
+    wrongAnswers: 'गलत उत्तर',
+    streak: 'स्ट्रीक',
+    moneyEarned: 'पैसा अर्जित',
+    restart: 'खेल पुनः शुरू करें',
+    congratulations: 'बधाई हो!',
+  },
+  en: {
+    title: 'Snake and Ladder',
+    soundOn: '🔊 Sound On',
+    soundOff: '🔇 Sound Off',
+    backToLobby: 'Back to Lobby',
+    answerQuestions: 'Answer questions to move forward.',
+    reachedHome: 'You reached Home!',
+    wellDone: 'Well done! You completed the Snake & Ladder journey.',
+    finalMoney: 'Final Money',
+    profitLoss: 'Profit/Loss',
+    accuracyLabel: 'Accuracy',
+    correctLabel: 'Correct',
+    wrongLabel: 'Wrong',
+    playAgain: 'Play Again',
+    questionLabel: 'Question',
+    moveSteps: 'Move',
+    wrongAnswerLabel: 'Wrong Answer',
+    note: 'Note: Correct answer moves you forward by the question step value.',
+    status: 'Status',
+    position: 'Position',
+    money: 'Money',
+    correct: 'Correct!',
+    wrong: 'Wrong!',
+    ladder: 'Ladder!',
+    youClimb: 'You climb from',
+    to: 'to',
+    snake: 'Snake!',
+    youSlide: 'You slide from',
+    youReachedEnd: 'You reached the end of the game!',
+    gameOver: 'Game Over!',
+    finalStats: 'Final Stats',
+    totalQuestions: 'Total Questions',
+    correctAnswers: 'Correct Answers',
+    wrongAnswers: 'Wrong Answers',
+    streak: 'Streak',
+    moneyEarned: 'Money Earned',
+    restart: 'Restart Game',
+    congratulations: 'Congratulations!',
+  }
+};
 
 const questions: Question[] = [
   {
     id: 1,
-    text: 'You got ₹1000. What is the best first step?',
-    options: ['Spend it all', 'Create a budget', 'Buy a new phone', 'Lend to a friend'],
+    text: {
+      en: 'You got ₹1000. What is the best first step?',
+      hi: 'आपको ₹1000 मिले। सबसे पहला सही कदम क्या होगा?'
+    },
+    options: {
+      en: ['Spend it all', 'Create a budget', 'Buy a new phone', 'Lend to a friend'],
+      hi: ['सब खर्च कर दें', 'बजट बनाएं', 'नया फोन खरीदें', 'दोस्त को उधार दें']
+    },
     correct: 1,
     steps: 2,
-    explanation: 'A budget helps you plan spending and saving.'
+    explanation: {
+      en: 'A budget helps you plan spending and saving.',
+      hi: 'बजट खर्च और बचत की योजना बनाने में मदद करता है।'
+    }
   },
   {
     id: 2,
-    text: 'What is an emergency fund used for?',
-    options: ['Shopping', 'Travel', 'Unexpected expenses', 'Games'],
+    text: {
+      en: 'What is an emergency fund used for?',
+      hi: 'इमरजेंसी फंड किस लिए होता है?'
+    },
+    options: {
+      en: ['Shopping', 'Travel', 'Unexpected expenses', 'Games'],
+      hi: ['खरीदारी', 'यात्रा', 'अचानक खर्च', 'खेल']
+    },
     correct: 2,
     steps: 3,
-    explanation: 'Emergency funds cover sudden expenses.'
+    explanation: {
+      en: 'Emergency funds cover sudden expenses.',
+      hi: 'इमरजेंसी फंड अचानक होने वाले खर्चों को कवर करता है।'
+    }
   },
   {
     id: 3,
-    text: 'Which is a good saving habit?',
-    options: ['Save a fixed % of income', 'Spend first', 'Borrow often', 'Ignore bills'],
+    text: {
+      en: 'Which is a good saving habit?',
+      hi: 'कौन सी अच्छी बचत आदत है?'
+    },
+    options: {
+      en: ['Save a fixed % of income', 'Spend first', 'Borrow often', 'Ignore bills'],
+      hi: ['आय का एक तय प्रतिशत बचाना', 'पहले खर्च करना', 'बार-बार उधार लेना', 'बिलों को नजरअंदाज करना']
+    },
     correct: 0,
     steps: 4,
-    explanation: 'Saving a fixed percentage builds consistency.'
+    explanation: {
+      en: 'Saving a fixed percentage builds consistency.',
+      hi: 'तय प्रतिशत बचाने से नियमितता बनती है।'
+    }
   },
   {
     id: 4,
-    text: 'Credit card APR means?',
-    options: ['Annual Percentage Rate', 'Average Payment Rule', 'Account Payment Ratio', 'Annual Pay Return'],
+    text: {
+      en: 'Credit card APR means?',
+      hi: 'क्रेडिट कार्ड APR का मतलब क्या है?'
+    },
+    options: {
+      en: ['Annual Percentage Rate', 'Average Payment Rule', 'Account Payment Ratio', 'Annual Pay Return'],
+      hi: ['वार्षिक प्रतिशत दर', 'औसत भुगतान नियम', 'खाता भुगतान अनुपात', 'वार्षिक भुगतान रिटर्न']
+    },
     correct: 0,
     steps: 5,
-    explanation: 'APR is the yearly interest rate on borrowed money.'
+    explanation: {
+      en: 'APR is the yearly interest rate on borrowed money.',
+      hi: 'APR उधार पैसे पर सालाना ब्याज दर है।'
+    }
   },
   {
     id: 5,
-    text: 'Best way to reduce risk in investing?',
-    options: ['All money in one stock', 'Diversification', 'No research', 'Borrow to invest'],
+    text: {
+      en: 'Best way to reduce risk in investing?',
+      hi: 'निवेश में जोखिम कम करने का सबसे अच्छा तरीका?'
+    },
+    options: {
+      en: ['All money in one stock', 'Diversification', 'No research', 'Borrow to invest'],
+      hi: ['सारा पैसा एक स्टॉक में', 'विविधीकरण', 'बिना शोध', 'उधार लेकर निवेश']
+    },
     correct: 1,
     steps: 6,
-    explanation: 'Diversification reduces risk.'
+    explanation: {
+      en: 'Diversification reduces risk.',
+      hi: 'विविधीकरण जोखिम कम करता है।'
+    }
   },
   {
     id: 6,
-    text: 'What is the 50/30/20 rule?',
-    options: ['Needs/Wants/Savings', 'Wants/Needs/Savings', 'Savings/Needs/Wants', 'Invest/Spend/Save'],
+    text: {
+      en: 'What is the 50/30/20 rule?',
+      hi: '50/30/20 नियम क्या है?'
+    },
+    options: {
+      en: ['Needs/Wants/Savings', 'Wants/Needs/Savings', 'Savings/Needs/Wants', 'Invest/Spend/Save'],
+      hi: ['जरूरतें/इच्छाएँ/बचत', 'इच्छाएँ/जरूरतें/बचत', 'बचत/जरूरतें/इच्छाएँ', 'निवेश/खर्च/बचत']
+    },
     correct: 0,
     steps: 2,
-    explanation: '50% needs, 30% wants, 20% savings.'
+    explanation: {
+      en: '50% needs, 30% wants, 20% savings.',
+      hi: '50% जरूरतें, 30% इच्छाएँ, 20% बचत।'
+    }
   },
   {
     id: 7,
-    text: 'Why is paying bills on time important?',
-    options: ['Build credit', 'Avoid late fees', 'Both', 'Neither'],
+    text: {
+      en: 'Why is paying bills on time important?',
+      hi: 'समय पर बिल भरना क्यों जरूरी है?'
+    },
+    options: {
+      en: ['Build credit', 'Avoid late fees', 'Both', 'Neither'],
+      hi: ['क्रेडिट बनता है', 'लेट फीस से बचते हैं', 'दोनों', 'कोई नहीं']
+    },
     correct: 2,
     steps: 3,
-    explanation: 'On-time payments build credit and avoid fees.'
+    explanation: {
+      en: 'On-time payments build credit and avoid fees.',
+      hi: 'समय पर भुगतान से क्रेडिट बनता है और फीस से बचते हैं।'
+    }
   },
   {
     id: 8,
-    text: 'What is compound interest?',
-    options: ['Interest on interest', 'Only on principal', 'A fee', 'A tax'],
+    text: {
+      en: 'What is compound interest?',
+      hi: 'चक्रवृद्धि ब्याज क्या है?'
+    },
+    options: {
+      en: ['Interest on interest', 'Only on principal', 'A fee', 'A tax'],
+      hi: ['ब्याज पर ब्याज', 'सिर्फ मूलधन पर', 'एक शुल्क', 'एक कर']
+    },
     correct: 0,
     steps: 4,
-    explanation: 'You earn interest on your interest too.'
+    explanation: {
+      en: 'You earn interest on your interest too.',
+      hi: 'ब्याज पर भी ब्याज मिलता है।'
+    }
   }
 ];
 
@@ -94,12 +252,13 @@ const ladders: Record<number, number> = {
 const boardSize = 30;
 
 const SnakeLadderPage = () => {
+  const [lang, setLang] = useState<'hi' | 'en'>('hi');
   const [position, setPosition] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [message, setMessage] = useState('Answer questions to move forward.');
+  const [message, setMessage] = useState(translations['hi'].answerQuestions);
   const [gameOver, setGameOver] = useState(false);
   const [money, setMoney] = useState(1000);
   const [correctCount, setCorrectCount] = useState(0);
@@ -109,6 +268,29 @@ const SnakeLadderPage = () => {
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
   const [questionOrder, setQuestionOrder] = useState<Question[]>([]);
   const [lastQuestionId, setLastQuestionId] = useState<number | null>(null);
+
+  const t = translations[lang];
+
+  const playFeedbackSound = (isCorrect: boolean) => {
+    if (typeof window === 'undefined') return;
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    try {
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = isCorrect ? 880 : 220;
+      gainNode.gain.value = 0.12;
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.18);
+      oscillator.onended = () => ctx.close();
+    } catch {
+      // ignore audio errors
+    }
+  };
 
   const shuffleQuestions = (avoidId?: number | null) => {
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
@@ -122,6 +304,25 @@ const SnakeLadderPage = () => {
   useEffect(() => {
     setQuestionOrder(shuffleQuestions(null));
   }, []);
+
+  const setLanguage = (newLang: 'hi' | 'en') => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lang', newLang);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
+    if (savedLang === 'hi' || savedLang === 'en') {
+      setLang(savedLang);
+    }
+  }, []);
+
+  useEffect(() => {
+    setMessage(translations[lang].answerQuestions);
+  }, [lang]);
 
   const question = questionOrder[currentQuestionIndex] || questions[0];
 
@@ -143,13 +344,13 @@ const SnakeLadderPage = () => {
     }
 
     if (ladders[next]) {
-      setMessage(`Ladder! You climb from ${next} to ${ladders[next]}.`);
+      setMessage(`${t.ladder} ${t.youClimb} ${next} ${t.to} ${ladders[next]}.`);
       next = ladders[next];
     } else if (snakes[next]) {
-      setMessage(`Snake! You slide from ${next} to ${snakes[next]}.`);
+      setMessage(`${t.snake} ${t.youSlide} ${next} ${t.to} ${snakes[next]}.`);
       next = snakes[next];
     } else {
-      setMessage(`Moved ${steps} steps.`);
+      setMessage(`${t.youClimb} ${steps} ${t.ladder}.`);
     }
 
     setPosition(next);
@@ -167,8 +368,7 @@ const SnakeLadderPage = () => {
     setShowResult(true);
 
     if (soundEnabled) {
-      const audio = new Audio(correct ? '/sounds/correct.wav' : '/sounds/wrong.mp3');
-      audio.play();
+      playFeedbackSound(correct);
     }
 
     const moneyChange = correct ? 150 + streak * 20 : -120;
@@ -208,7 +408,7 @@ const SnakeLadderPage = () => {
     setSelected(null);
     setShowResult(false);
     setIsCorrect(false);
-    setMessage('Answer questions to move forward.');
+    setMessage(t.answerQuestions);
     setGameOver(false);
     setMoney(1000);
     setCorrectCount(0);
@@ -225,6 +425,38 @@ const SnakeLadderPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)]">
+      <header className="bg-[var(--navbar-bg)] shadow-md p-4 flex justify-between items-center" style={{ boxShadow: 'var(--navbar-shadow)' }}>
+        <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLanguage('hi')}
+            className={`px-3 py-1 rounded ${lang === 'hi' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+          >
+            हिन्दी
+          </button>
+          <button
+            onClick={() => setLanguage('en')}
+            className={`px-3 py-1 rounded ${lang === 'en' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+          >
+            English
+          </button>
+          <button
+            onClick={() => {
+              const newValue = !soundEnabled;
+              setSoundEnabled(newValue);
+              localStorage.setItem('soundEnabled', JSON.stringify(newValue));
+            }}
+            className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80"
+          >
+            {soundEnabled ? t.soundOn : t.soundOff}
+          </button>
+          <Link href="/game">
+            <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              {t.backToLobby}
+            </button>
+          </Link>
+        </div>
+      </header>
       <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[var(--primary)]">Snake & Ladder: Q&A Mode</h1>
@@ -292,14 +524,14 @@ const SnakeLadderPage = () => {
             {gameOver ? (
               <div className="text-center">
                 <div className="text-5xl mb-3">🏠</div>
-                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">You reached Home!</h2>
-                <p className="text-gray-700 mb-4">Well done! You completed the Snake & Ladder journey.</p>
+                <h2 className="text-2xl font-bold text-[var(--primary)] mb-2">{t.reachedHome}</h2>
+                <p className="text-gray-700 mb-4">{t.wellDone}</p>
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>Final Money: <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>₹{money}</span></div>
-                    <div>Profit/Loss: <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{profit >= 0 ? '+' : ''}₹{profit}</span></div>
-                    <div>Accuracy: <span className="font-bold">{accuracy}%</span></div>
-                    <div>Correct: <span className="font-bold">{correctCount}</span> | Wrong: <span className="font-bold">{wrongCount}</span></div>
+                    <div>{t.finalMoney}: <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>₹{money}</span></div>
+                    <div>{t.profitLoss}: <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{profit >= 0 ? '+' : ''}₹{profit}</span></div>
+                    <div>{t.accuracyLabel}: <span className="font-bold">{accuracy}%</span></div>
+                    <div>{t.correctLabel}: <span className="font-bold">{correctCount}</span> | {t.wrongLabel}: <span className="font-bold">{wrongCount}</span></div>
                   </div>
                 </div>
                 <div className="flex gap-4 justify-center">
@@ -307,11 +539,11 @@ const SnakeLadderPage = () => {
                     onClick={restart}
                     className="bg-[var(--primary)] text-white font-bold py-3 px-6 rounded-full hover:bg-[var(--secondary)]"
                   >
-                    Play Again
+                    {t.playAgain}
                   </button>
                   <Link href="/game">
                     <button className="bg-gray-600 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-700">
-                      Return to Lobby
+                      {t.backToLobby}
                     </button>
                   </Link>
                 </div>
@@ -319,11 +551,11 @@ const SnakeLadderPage = () => {
             ) : (
               <>
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold text-[var(--primary)]">Question {currentQuestionIndex + 1} (Move {question.steps} steps)</h2>
-                  <p className="text-lg text-[var(--foreground)] mt-2">{question.text}</p>
+                  <h2 className="text-xl font-bold text-[var(--primary)]">{t.questionLabel} {currentQuestionIndex + 1} ({t.moveSteps} {question.steps})</h2>
+                  <p className="text-lg text-[var(--foreground)] mt-2">{question.text[lang]}</p>
                 </div>
                 <div className="grid grid-cols-1 gap-3 mb-4">
-                  {question.options.map((opt, idx) => {
+                  {question.options[lang].map((opt, idx) => {
                     let btnColor = 'bg-[var(--primary)] text-white';
                     if (selected !== null) {
                       if (idx === question.correct) {
@@ -353,18 +585,18 @@ const SnakeLadderPage = () => {
                   }`}>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-2xl">{isCorrect ? '✅' : '❌'}</span>
-                      <span className="font-bold">{isCorrect ? 'Correct!' : 'Wrong Answer'}</span>
+                      <span className="font-bold">{isCorrect ? t.correct : t.wrongAnswerLabel}</span>
                       <span className={`ml-auto font-bold ${lastMoneyChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {lastMoneyChange >= 0 ? '+' : ''}₹{lastMoneyChange}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700">💡 {question.explanation}</p>
+                    <p className="text-sm text-gray-700">💡 {question.explanation[lang]}</p>
                   </div>
                 )}
 
                 <div className="mt-4 text-sm text-gray-700">
-                  <p>Note: Correct answer moves you forward by the question step value.</p>
-                  <p className="mt-2 font-semibold">Status: {message}</p>
+                  <p>{t.note}</p>
+                  <p className="mt-2 font-semibold">{t.status}: {message}</p>
                 </div>
               </>
             )}

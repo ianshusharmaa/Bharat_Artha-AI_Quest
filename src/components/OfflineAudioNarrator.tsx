@@ -81,7 +81,7 @@ export const OfflineAudioNarrator: React.FC<AudioNarratorProps> = ({
       <span className="text-xl">
         {isSpeaking ? '🔊' : '🔉'}
       </span>
-      {isSpeaking ? 'Playing...' : 'Listen'}
+      {isSpeaking ? (language === 'hi' ? 'चल रहा है...' : 'Playing...') : (language === 'hi' ? 'सुनें' : 'Listen')}
     </button>
   );
 };

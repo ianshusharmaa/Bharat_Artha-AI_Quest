@@ -3,74 +3,233 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface LocalizedText {
+  en: string;
+  hi: string;
+}
+
 interface Question {
-  question: string;
-  options: string[];
+  question: LocalizedText;
+  options: { en: string[]; hi: string[] };
   correctAnswer: number;
   moneyEffect: { correct: number; wrong: number };
-  explanation: string;
+  explanation: LocalizedText;
 }
+
+const translations = {
+  hi: {
+    title: 'वित्तीय यात्रा मानचित्र',
+    soundOn: '🔊 ध्वनि चालू',
+    soundOff: '🔇 ध्वनि बंद',
+    backToLobby: 'लॉबी में वापस जाएं',
+    journeyProgress: 'यात्रा की प्रगति',
+    step: 'चरण',
+    money: 'पैसा',
+    start: 'शुरुआत',
+    home: 'घर',
+    questionLabel: 'प्रश्न',
+    moneyLabel: 'पैसा',
+    correctLabel: 'सही',
+    wrongLabel: 'गलत',
+    accuracyLabel: 'सटीकता',
+    selectAnswer: 'उत्तर चुनें',
+    correctResult: 'सही!',
+    wrongResult: 'गलत उत्तर',
+    youEarned: 'आपने अर्जित किए',
+    youLost: 'आपने खोए',
+    gameOver: 'खेल समाप्त!',
+    finalStats: 'अंतिम आंकड़े',
+    totalQuestions: 'कुल प्रश्न',
+    accuracy: 'सटीकता',
+    journeyComplete: 'यात्रा पूरी हुई!',
+    startingMoney: 'शुरुआती पैसा',
+    finalMoney: 'अंतिम पैसा',
+    performanceSummary: 'प्रदर्शन सारांश',
+    excellent: '🌟 शानदार! आपने शानदार वित्तीय फैसले लिए!',
+    goodJob: '👍 अच्छा काम! आपने पैसे को अच्छे से संभाला!',
+    notBad: '✅ बुरा नहीं! सीखते रहें और बेहतर बनें!',
+    lostSome: '⚠️ कुछ पैसे कम हुए। अपने विकल्पों की समीक्षा करें!',
+    toughJourney: '❌ कठिन यात्रा! इन गलतियों से सीखें!',
+    totalMoneyEarned: 'कुल पैसा अर्जित',
+    profit: 'लाभ',
+    loss: 'नुकसान',
+    finalBalance: 'अंतिम संतुलन',
+    restart: 'खेल पुनः शुरू करें',
+  },
+  en: {
+    title: 'Financial Journey Map',
+    soundOn: '🔊 Sound On',
+    soundOff: '🔇 Sound Off',
+    backToLobby: 'Back to Lobby',
+    journeyProgress: 'Journey Progress',
+    step: 'Step',
+    money: 'Money',
+    start: 'Start',
+    home: 'Home',
+    questionLabel: 'Question',
+    moneyLabel: 'Money',
+    correctLabel: 'Correct',
+    wrongLabel: 'Wrong',
+    accuracyLabel: 'Accuracy',
+    selectAnswer: 'Select Answer',
+    correctResult: 'Correct!',
+    wrongResult: 'Wrong Answer',
+    youEarned: 'You earned',
+    youLost: 'You lost',
+    gameOver: 'Game Over!',
+    finalStats: 'Final Stats',
+    totalQuestions: 'Total Questions',
+    accuracy: 'Accuracy',
+    journeyComplete: 'Journey Complete!',
+    startingMoney: 'Starting Money',
+    finalMoney: 'Final Money',
+    performanceSummary: 'Performance Summary',
+    excellent: '🌟 Excellent! You made great financial decisions!',
+    goodJob: '👍 Good job! You managed your money well!',
+    notBad: '✅ Not bad! Keep learning and improving!',
+    lostSome: '⚠️ You lost some money. Review your choices!',
+    toughJourney: '❌ Tough journey! Learn from these mistakes!',
+    totalMoneyEarned: 'Total Money Earned',
+    profit: 'Profit',
+    loss: 'Loss',
+    finalBalance: 'Final Balance',
+    restart: 'Restart Game',
+  }
+};
 
 const questions: Question[] = [
   {
-    question: 'You found ₹500 on the street. What should you do?',
-    options: ['Keep it all', 'Try to find the owner', 'Donate to charity', 'Share with friends'],
+    question: {
+      en: 'You found ₹500 on the street. What should you do?',
+      hi: 'सड़क पर आपको ₹500 मिले। आपको क्या करना चाहिए?'
+    },
+    options: {
+      en: ['Keep it all', 'Try to find the owner', 'Donate to charity', 'Share with friends'],
+      hi: ['सारे पैसे रख लें', 'मालिक को ढूंढने की कोशिश करें', 'दान कर दें', 'दोस्तों के साथ बांट दें']
+    },
     correctAnswer: 1,
     moneyEffect: { correct: 50, wrong: -100 },
-    explanation: 'Returning money shows integrity. The owner gave you a reward!'
+    explanation: {
+      en: 'Returning money shows integrity. The owner gave you a reward!',
+      hi: 'पैसा लौटाना ईमानदारी दिखाता है। मालिक ने आपको इनाम दिया!'
+    }
   },
   {
-    question: 'Your friend wants to borrow ₹1000. What do you do?',
-    options: ['Lend without questions', 'Politely decline', 'Lend with a repayment plan', 'Give as a gift'],
+    question: {
+      en: 'Your friend wants to borrow ₹1000. What do you do?',
+      hi: 'आपका दोस्त ₹1000 उधार लेना चाहता है। आप क्या करेंगे?'
+    },
+    options: {
+      en: ['Lend without questions', 'Politely decline', 'Lend with a repayment plan', 'Give as a gift'],
+      hi: ['बिना पूछे उधार दे दें', 'विनम्रता से मना करें', 'चुकाने की योजना के साथ उधार दें', 'उपहार की तरह दे दें']
+    },
     correctAnswer: 2,
     moneyEffect: { correct: 200, wrong: -500 },
-    explanation: 'Setting clear terms protects both parties. Your friend repaid on time!'
+    explanation: {
+      en: 'Setting clear terms protects both parties. Your friend repaid on time!',
+      hi: 'स्पष्ट शर्तें दोनों की सुरक्षा करती हैं। दोस्त ने समय पर लौटाया!'
+    }
   },
   {
-    question: 'There\'s a 50% sale on a gadget you want. You have savings. What do you do?',
-    options: ['Buy it immediately', 'Check if you really need it', 'Wait for a better deal', 'Buy and sell later'],
+    question: {
+      en: 'There\'s a 50% sale on a gadget you want. You have savings. What do you do?',
+      hi: 'आपको पसंद का गैजेट 50% सेल में है और आपके पास बचत है। आप क्या करेंगे?'
+    },
+    options: {
+      en: ['Buy it immediately', 'Check if you really need it', 'Wait for a better deal', 'Buy and sell later'],
+      hi: ['तुरंत खरीद लें', 'देखें कि वाकई जरूरत है या नहीं', 'और बेहतर डील का इंतजार करें', 'खरीदकर बाद में बेचें']
+    },
     correctAnswer: 1,
     moneyEffect: { correct: 100, wrong: -300 },
-    explanation: 'Needs before wants! You saved money by not buying unnecessary items.'
+    explanation: {
+      en: 'Needs before wants! You saved money by not buying unnecessary items.',
+      hi: 'जरूरतें पहले! गैरज़रूरी चीज़ न खरीदकर आप पैसे बचाते हैं।'
+    }
   },
   {
-    question: 'You received ₹2000 as a gift. What\'s the best option?',
-    options: ['Spend it all now', 'Save 50%, spend 50%', 'Save it all', 'Invest in stocks'],
+    question: {
+      en: 'You received ₹2000 as a gift. What\'s the best option?',
+      hi: 'आपको उपहार में ₹2000 मिले। सबसे अच्छा विकल्प क्या है?'
+    },
+    options: {
+      en: ['Spend it all now', 'Save 50%, spend 50%', 'Save it all', 'Invest in stocks'],
+      hi: ['अभी सब खर्च कर दें', '50% बचाएं, 50% खर्च करें', 'सारा बचा लें', 'शेयर में निवेश करें']
+    },
     correctAnswer: 1,
     moneyEffect: { correct: 300, wrong: -200 },
-    explanation: 'Balancing saving and enjoyment is key to financial wellness!'
+    explanation: {
+      en: 'Balancing saving and enjoyment is key to financial wellness!',
+      hi: 'बचत और आनंद में संतुलन वित्तीय सेहत के लिए जरूरी है!'
+    }
   },
   {
-    question: 'Your phone broke. Repair costs ₹800. What do you do?',
-    options: ['Use emergency fund', 'Buy new phone on EMI', 'Ask family for money', 'Ignore and buy later'],
+    question: {
+      en: 'Your phone broke. Repair costs ₹800. What do you do?',
+      hi: 'आपका फोन खराब हो गया। मरम्मत में ₹800 लगेंगे। आप क्या करेंगे?'
+    },
+    options: {
+      en: ['Use emergency fund', 'Buy new phone on EMI', 'Ask family for money', 'Ignore and buy later'],
+      hi: ['इमरजेंसी फंड का उपयोग करें', 'EMI पर नया फोन लें', 'परिवार से पैसे मांगें', 'अभी छोड़ दें और बाद में खरीदें']
+    },
     correctAnswer: 0,
     moneyEffect: { correct: 150, wrong: -400 },
-    explanation: 'Emergency funds are for emergencies! You handled it well.'
+    explanation: {
+      en: 'Emergency funds are for emergencies! You handled it well.',
+      hi: 'इमरजेंसी फंड आपात स्थिति के लिए होता है—आपने सही किया।'
+    }
   },
   {
-    question: 'You have ₹3000 saved. A friend offers an investment opportunity. What do you do?',
-    options: ['Invest all ₹3000', 'Research first, then invest small', 'Decline politely', 'Ask to borrow more and invest'],
+    question: {
+      en: 'You have ₹3000 saved. A friend offers an investment opportunity. What do you do?',
+      hi: 'आपके पास ₹3000 की बचत है। दोस्त निवेश का अवसर देता है। आप क्या करेंगे?'
+    },
+    options: {
+      en: ['Invest all ₹3000', 'Research first, then invest small', 'Decline politely', 'Ask to borrow more and invest'],
+      hi: ['पूरा ₹3000 निवेश कर दें', 'पहले रिसर्च करें, फिर थोड़ा निवेश करें', 'विनम्रता से मना करें', 'और उधार लेकर निवेश करें']
+    },
     correctAnswer: 1,
     moneyEffect: { correct: 400, wrong: -600 },
-    explanation: 'Research and diversification are keys to smart investing!'
+    explanation: {
+      en: 'Research and diversification are keys to smart investing!',
+      hi: 'रिसर्च और विविधीकरण समझदारी भरे निवेश की कुंजी हैं!'
+    }
   },
   {
-    question: 'Monthly budget planning: How should you allocate your income?',
-    options: ['Spend all, save nothing', '70% expenses, 30% savings', '50% needs, 30% wants, 20% savings', 'Save all, spend nothing'],
+    question: {
+      en: 'Monthly budget planning: How should you allocate your income?',
+      hi: 'मासिक बजट बनाते समय आय का बंटवारा कैसे करें?'
+    },
+    options: {
+      en: ['Spend all, save nothing', '70% expenses, 30% savings', '50% needs, 30% wants, 20% savings', 'Save all, spend nothing'],
+      hi: ['सब खर्च करें, कुछ न बचाएं', '70% खर्च, 30% बचत', '50% जरूरतें, 30% इच्छाएँ, 20% बचत', 'सब बचाएं, कुछ न खर्च करें']
+    },
     correctAnswer: 2,
     moneyEffect: { correct: 250, wrong: -150 },
-    explanation: 'The 50/30/20 rule is a balanced approach to budgeting!'
+    explanation: {
+      en: 'The 50/30/20 rule is a balanced approach to budgeting!',
+      hi: '50/30/20 नियम बजटिंग का संतुलित तरीका है!'
+    }
   },
   {
-    question: 'Credit card company offers you a card. What do you do?',
-    options: ['Accept and max it out', 'Accept and use responsibly', 'Decline completely', 'Accept but never use'],
+    question: {
+      en: 'Credit card company offers you a card. What do you do?',
+      hi: 'क्रेडिट कार्ड कंपनी आपको कार्ड ऑफर करती है। आप क्या करेंगे?'
+    },
+    options: {
+      en: ['Accept and max it out', 'Accept and use responsibly', 'Decline completely', 'Accept but never use'],
+      hi: ['ले लें और पूरी सीमा तक खर्च करें', 'ले लें और जिम्मेदारी से इस्तेमाल करें', 'पूरी तरह मना कर दें', 'ले लें लेकिन कभी उपयोग न करें']
+    },
     correctAnswer: 1,
     moneyEffect: { correct: 200, wrong: -500 },
-    explanation: 'Responsible credit card use builds credit score and gives benefits!'
+    explanation: {
+      en: 'Responsible credit card use builds credit score and gives benefits!',
+      hi: 'जिम्मेदार उपयोग से क्रेडिट स्कोर बनता है और फायदे मिलते हैं!'
+    }
   }
 ];
 
 const StoryMapPage = () => {
+  const [lang, setLang] = useState<'hi' | 'en'>('hi');
   const [position, setPosition] = useState(0);
   const [money, setMoney] = useState(1000);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -85,10 +244,39 @@ const StoryMapPage = () => {
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
 
+  const t = translations[lang];
+
+  const playFeedbackSound = (isCorrect: boolean) => {
+    if (typeof window === 'undefined') return;
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    try {
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = isCorrect ? 880 : 220;
+      gainNode.gain.value = 0.12;
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.18);
+      oscillator.onended = () => ctx.close();
+    } catch {
+      // ignore audio errors
+    }
+  };
+
   const totalSteps = shuffledQuestions.length || questions.length;
   const pathPositions = Array.from({ length: totalSteps + 1 }, (_, i) => i);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
+    if (savedLang === 'hi' || savedLang === 'en') {
+      setLang(savedLang);
+    }
+
     const soundSetting = localStorage.getItem('soundEnabled');
     if (soundSetting !== null) {
       setSoundEnabled(JSON.parse(soundSetting));
@@ -100,6 +288,13 @@ const StoryMapPage = () => {
     setShuffledQuestions(shuffled);
   }, []);
 
+  const setLanguage = (newLang: 'hi' | 'en') => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lang', newLang);
+    }
+  };
+
   const handleAnswer = (answerIndex: number) => {
     if (selected !== null) return;
     
@@ -110,8 +305,7 @@ const StoryMapPage = () => {
     setShowResult(true);
 
     if (soundEnabled) {
-      const audio = new Audio(correct ? '/sounds/correct.wav' : '/sounds/wrong.mp3');
-      audio.play();
+      playFeedbackSound(correct);
     }
 
     const moneyChange = correct 
@@ -163,8 +357,20 @@ const StoryMapPage = () => {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-green-50">
       <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[var(--primary)]">Financial Journey Map</h1>
+          <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLanguage('hi')}
+              className={`px-3 py-1 rounded ${lang === 'hi' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+            >
+              हिन्दी
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-3 py-1 rounded ${lang === 'en' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+            >
+              English
+            </button>
             <button
               onClick={() => {
                 const newValue = !soundEnabled;
@@ -173,11 +379,11 @@ const StoryMapPage = () => {
               }}
               className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80"
             >
-              {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
+              {soundEnabled ? t.soundOn : t.soundOff}
             </button>
             <Link href="/game">
               <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                Back to Lobby
+                {t.backToLobby}
               </button>
             </Link>
           </div>
@@ -189,11 +395,11 @@ const StoryMapPage = () => {
           {/* Map Section */}
           <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
             <div className="mb-4 text-center">
-              <h2 className="text-xl font-bold text-[var(--primary)] mb-2">Journey Progress</h2>
+              <h2 className="text-xl font-bold text-[var(--primary)] mb-2">{t.journeyProgress}</h2>
               <div className="flex justify-center gap-4 text-lg">
-                <span className="font-semibold">Step: {position + 1}/{totalSteps + 1}</span>
+                <span className="font-semibold">{t.step}: {position + 1}/{totalSteps + 1}</span>
                 <span className={`font-bold ${money >= 1000 ? 'text-green-600' : 'text-red-600'}`}>
-                  Money: ₹{money}
+                  {t.money}: ₹{money}
                 </span>
               </div>
               <div className="mt-4">
@@ -204,8 +410,8 @@ const StoryMapPage = () => {
                   ></div>
                 </div>
                 <div className="mt-2 flex justify-between text-xs text-gray-600">
-                  <span>Accuracy: {accuracy}%</span>
-                  <span>Correct: {correctCount} | Wrong: {wrongCount}</span>
+                  <span>{t.accuracyLabel}: {accuracy}%</span>
+                  <span>{t.correctLabel}: {correctCount} | {t.wrongLabel}: {wrongCount}</span>
                 </div>
               </div>
             </div>
@@ -239,7 +445,7 @@ const StoryMapPage = () => {
                         )}
                       </div>
                       <span className="text-xs mt-2 font-semibold">
-                        {idx === 0 ? 'Start' : idx === totalSteps ? 'Home' : `Q${idx}`}
+                        {idx === 0 ? t.start : idx === totalSteps ? t.home : `${t.questionLabel}${idx}`}
                       </span>
                     </div>
                     
@@ -260,21 +466,21 @@ const StoryMapPage = () => {
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <div className="mb-6">
                 <h3 className="text-2xl font-bold text-[var(--primary)] mb-4">
-                  Question {currentQuestion + 1}
+                  {t.questionLabel} {currentQuestion + 1}
                 </h3>
                 <div className="flex flex-wrap gap-3 text-sm mb-3">
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Money: ₹{money}</span>
-                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">Correct: {correctCount}</span>
-                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full">Wrong: {wrongCount}</span>
-                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Accuracy: {accuracy}%</span>
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">{t.moneyLabel}: ₹{money}</span>
+                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">{t.correctLabel}: {correctCount}</span>
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full">{t.wrongLabel}: {wrongCount}</span>
+                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">{t.accuracyLabel}: {accuracy}%</span>
                 </div>
                 <p className="text-lg text-[var(--foreground)]">
-                  {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).question}
+                  {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).question[lang]}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).options.map((option, idx) => {
+                {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).options[lang].map((option, idx) => {
                   let btnColor = 'bg-[var(--primary)] text-white';
                   if (selected !== null) {
                     if (idx === (shuffledQuestions[currentQuestion] || questions[currentQuestion]).correctAnswer) {
@@ -306,14 +512,14 @@ const StoryMapPage = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{isCorrect ? '✅' : '❌'}</span>
                     <span className="font-bold text-lg">
-                      {isCorrect ? 'Correct!' : 'Wrong Answer'}
+                      {isCorrect ? t.correctResult : t.wrongResult}
                     </span>
                     <span className={`ml-auto font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
                       {lastMoneyChange >= 0 ? '+' : ''}₹{lastMoneyChange}
                     </span>
                   </div>
                   <p className="text-sm text-gray-700">
-                    💡 {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).explanation}
+                    💡 {(shuffledQuestions[currentQuestion] || questions[currentQuestion]).explanation[lang]}
                   </p>
                 </div>
               )}
@@ -325,24 +531,24 @@ const StoryMapPage = () => {
             <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
               <div className="text-6xl mb-4">🏠</div>
               <h2 className="text-3xl font-bold text-[var(--primary)] mb-6">
-                Journey Complete!
+                {t.journeyComplete}
               </h2>
               
               <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 mb-6">
                 <div className="grid md:grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-gray-600 mb-1">Starting Money</p>
+                    <p className="text-gray-600 mb-1">{t.startingMoney}</p>
                     <p className="text-2xl font-bold">₹1000</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Final Money</p>
+                    <p className="text-gray-600 mb-1">{t.finalMoney}</p>
                     <p className={`text-2xl font-bold ${money >= 1000 ? 'text-green-600' : 'text-red-600'}`}>
                       ₹{money}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-600 mb-1">
-                      {profit >= 0 ? 'Profit 🎉' : 'Loss 😞'}
+                      {profit >= 0 ? `${t.profit} 🎉` : `${t.loss} 😞`}
                     </p>
                     <p className={`text-3xl font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {profit >= 0 ? '+' : ''}₹{profit}
@@ -350,27 +556,27 @@ const StoryMapPage = () => {
                   </div>
                 </div>
                 <div className="mt-4 text-center text-sm text-gray-600">
-                  Accuracy: {accuracy}% • Correct: {correctCount} • Wrong: {wrongCount}
+                  {t.accuracyLabel}: {accuracy}% • {t.correctLabel}: {correctCount} • {t.wrongLabel}: {wrongCount}
                 </div>
               </div>
 
               <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-3 text-[var(--primary)]">Performance Summary</h3>
+                <h3 className="text-xl font-semibold mb-3 text-[var(--primary)]">{t.performanceSummary}</h3>
                 <div className="bg-gray-50 rounded-lg p-4">
                   {profit >= 800 && (
-                    <p className="text-lg">🌟 Excellent! You made great financial decisions!</p>
+                    <p className="text-lg">{t.excellent}</p>
                   )}
                   {profit >= 400 && profit < 800 && (
-                    <p className="text-lg">👍 Good job! You managed your money well!</p>
+                    <p className="text-lg">{t.goodJob}</p>
                   )}
                   {profit >= 0 && profit < 400 && (
-                    <p className="text-lg">✅ Not bad! Keep learning and improving!</p>
+                    <p className="text-lg">{t.notBad}</p>
                   )}
                   {profit < 0 && profit >= -500 && (
-                    <p className="text-lg">⚠️ You lost some money. Review your choices!</p>
+                    <p className="text-lg">{t.lostSome}</p>
                   )}
                   {profit < -500 && (
-                    <p className="text-lg">❌ Tough journey! Learn from these mistakes!</p>
+                    <p className="text-lg">{t.toughJourney}</p>
                   )}
                 </div>
               </div>
@@ -380,11 +586,11 @@ const StoryMapPage = () => {
                   onClick={restartGame}
                   className="bg-[var(--primary)] text-white font-bold py-3 px-6 rounded-full hover:bg-[var(--secondary)] transition-transform transform hover:scale-105"
                 >
-                  Play Again
+                  {t.restart}
                 </button>
                 <a href="/game">
                   <button className="bg-gray-600 text-white font-bold py-3 px-6 rounded-full hover:bg-gray-700 transition-transform transform hover:scale-105">
-                    Return to Lobby
+                    {t.backToLobby}
                   </button>
                 </a>
               </div>
