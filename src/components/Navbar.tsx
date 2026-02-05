@@ -1,8 +1,35 @@
-
+"use client";
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+
+const translations = {
+  hi: {
+    brand: 'भारत अर्थ-AI Quest',
+    gameModes: 'गेम मोड',
+    quiz: 'क्विज़',
+    profile: 'प्रोफ़ाइल'
+  },
+  en: {
+    brand: 'Bharat Arth-AI Quest',
+    gameModes: 'Game Modes',
+    quiz: 'Quiz',
+    profile: 'Profile'
+  }
+} as const;
 
 const Navbar = () => {
+  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
+    if (savedLang === 'hi' || savedLang === 'en') {
+      setLang(savedLang);
+    }
+  }, []);
+
+  const t = translations[lang];
+
   return (
     <nav
       className="bg-[var(--navbar-bg)] shadow-md p-4"
@@ -10,15 +37,15 @@ const Navbar = () => {
     >
       <div className="max-w-6xl mx-auto flex justify-between items-center">
         <Link href="/">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <Image src="/globe.svg" alt="Logo" width={32} height={32} className="drop-shadow-md" />
-            <span className="text-2xl font-extrabold text-[var(--primary)] tracking-tight">Financial Literacy Adventure</span>
+          <div className="flex items-center gap-3 cursor-pointer">
+            <img src="/sounds/logo.png" alt="Logo" width={40} height={40} className="drop-shadow-md" />
+            <span className="text-xl font-extrabold text-[var(--primary)] tracking-tight">{t.brand}</span>
           </div>
         </Link>
         <div className="flex space-x-6">
-          <NavItem href="/game" label="Game Modes" />
-          <NavItem href="/game/quiz" label="Quiz" />
-          <NavItem href="/profile" label="Profile" />
+          <NavItem href="/game" label={t.gameModes} />
+          <NavItem href="/game/quiz" label={t.quiz} />
+          <NavItem href="/profile" label={t.profile} />
         </div>
       </div>
     </nav>

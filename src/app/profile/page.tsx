@@ -5,7 +5,53 @@ import Link from 'next/link';
 
 const avatars = ['👤', '👨', '👩', '🧑', '👦', '👧', '🧒', '👨‍💼', '👩‍💼', '🧑‍🎓', '👨‍🎓', '👩‍🎓', '🦸', '🦹', '🧙', '🧚'];
 
+const translations = {
+  hi: {
+    profile: 'प्रोफाइल',
+    backToGame: 'गेम में वापस जाएं',
+    dayStreak: 'दिन की स्ट्रीक',
+    badges: 'बैज',
+    editProfile: 'प्रोफाइल संपादित करें',
+    cancel: 'रद्द करें',
+    username: 'उपयोगकर्ता नाम',
+    enterUsername: 'उपयोगकर्ता नाम दर्ज करें',
+    chooseAvatar: 'अवतार चुनें',
+    saveChanges: 'परिवर्तन सहेजें',
+    achievements: 'आपकी उपलब्धियां',
+    progress: 'प्रगति',
+    unlocked: 'अनलॉक किए गए',
+    quizMaster: 'क्विज मास्टर',
+    perfectScore: 'परफेक्ट स्कोर',
+    speedMaster: 'स्पीड मास्टर',
+    streakChampion: 'स्ट्रीक चैंपियन',
+    financialGuru: 'वित्तीय गुरु',
+    investor: 'निवेशक',
+  },
+  en: {
+    profile: 'Profile',
+    backToGame: 'Back to Game',
+    dayStreak: 'Day Streak',
+    badges: 'Badges',
+    editProfile: 'Edit Profile',
+    cancel: 'Cancel',
+    username: 'Username',
+    enterUsername: 'Enter username',
+    chooseAvatar: 'Choose Avatar',
+    saveChanges: 'Save Changes',
+    achievements: 'Your Achievements',
+    progress: 'Progress',
+    unlocked: 'unlocked',
+    quizMaster: 'Quiz Master',
+    perfectScore: 'Perfect Score',
+    speedMaster: 'Speed Master',
+    streakChampion: 'Streak Champion',
+    financialGuru: 'Financial Guru',
+    investor: 'Investor',
+  }
+};
+
 const ProfilePage = () => {
+  const [lang, setLang] = useState<'hi' | 'en'>('hi');
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState('👤');
   const [badges, setBadges] = useState<number[]>([]);
@@ -14,7 +60,15 @@ const ProfilePage = () => {
   const [tempUsername, setTempUsername] = useState('');
   const [tempAvatar, setTempAvatar] = useState('👤');
 
+  const t = translations[lang];
+
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
+    if (savedLang === 'hi' || savedLang === 'en') {
+      setLang(savedLang);
+    }
+
     const savedUsername = localStorage.getItem('username') || 'Player';
     const savedAvatar = localStorage.getItem('avatar') || '👤';
     const savedBadges = JSON.parse(localStorage.getItem('badges') || '[]');
@@ -28,6 +82,13 @@ const ProfilePage = () => {
     setTempAvatar(savedAvatar);
   }, []);
 
+  const setLanguage = (newLang: 'hi' | 'en') => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lang', newLang);
+    }
+  };
+
   const handleSave = () => {
     localStorage.setItem('username', tempUsername);
     localStorage.setItem('avatar', tempAvatar);
@@ -37,24 +98,38 @@ const ProfilePage = () => {
   };
 
   const badgeList = [
-    { id: 1, name: "Quiz Master", icon: "🏆" },
-    { id: 4, name: "Perfect Score", icon: "🌟" },
-    { id: 5, name: "Speed Master", icon: "⚡" },
-    { id: 6, name: "Streak Champion", icon: "🔥" },
-    { id: 7, name: "Financial Guru", icon: "🎓" },
-    { id: 8, name: "Investor", icon: "📈" },
+    { id: 1, name: t.quizMaster, icon: "🏆" },
+    { id: 4, name: t.perfectScore, icon: "🌟" },
+    { id: 5, name: t.speedMaster, icon: "⚡" },
+    { id: 6, name: t.streakChampion, icon: "🔥" },
+    { id: 7, name: t.financialGuru, icon: "🎓" },
+    { id: 8, name: t.investor, icon: "📈" },
   ];
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background)]">
       <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[var(--primary)]">Profile</h1>
-          <Link href="/game">
-            <button className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80">
-              Back to Game
+          <h1 className="text-2xl font-bold text-[var(--primary)]">{t.profile}</h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLanguage('hi')}
+              className={`px-3 py-1 rounded ${lang === 'hi' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+            >
+              हिन्दी
             </button>
-          </Link>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-3 py-1 rounded ${lang === 'en' ? 'bg-[var(--primary)] text-white' : 'bg-gray-300 text-black'}`}
+            >
+              English
+            </button>
+            <Link href="/game">
+              <button className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg hover:opacity-80">
+                {t.backToGame}
+              </button>
+            </Link>
+          </div>
         </div>
       </header>
       
@@ -68,10 +143,10 @@ const ProfilePage = () => {
                 <h2 className="text-3xl font-bold text-[var(--primary)] mb-2">{username}</h2>
                 <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                   <div className="bg-orange-100 px-4 py-2 rounded-full">
-                    <span className="text-orange-600 font-bold">🔥 {streak} Day Streak</span>
+                    <span className="text-orange-600 font-bold">🔥 {streak} {t.dayStreak}</span>
                   </div>
                   <div className="bg-blue-100 px-4 py-2 rounded-full">
-                    <span className="text-blue-600 font-bold">🏆 {badges.length} Badges</span>
+                    <span className="text-blue-600 font-bold">🏆 {badges.length} {t.badges}</span>
                   </div>
                 </div>
               </div>
@@ -79,7 +154,7 @@ const ProfilePage = () => {
                 onClick={() => setIsEditing(!isEditing)}
                 className="bg-[var(--primary)] text-white px-6 py-2 rounded-lg hover:opacity-80"
               >
-                {isEditing ? 'Cancel' : 'Edit Profile'}
+                {isEditing ? t.cancel : t.editProfile}
               </button>
             </div>
 
@@ -87,17 +162,17 @@ const ProfilePage = () => {
             {isEditing && (
               <div className="mt-6 pt-6 border-t border-[var(--card-border)]">
                 <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2 text-[var(--foreground)]">Username</label>
+                  <label className="block text-sm font-semibold mb-2 text-[var(--foreground)]">{t.username}</label>
                   <input
                     type="text"
                     value={tempUsername}
                     onChange={(e) => setTempUsername(e.target.value)}
                     className="w-full px-4 py-2 border border-[var(--card-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                    placeholder="Enter username"
+                    placeholder={t.enterUsername}
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2 text-[var(--foreground)]">Choose Avatar</label>
+                  <label className="block text-sm font-semibold mb-2 text-[var(--foreground)]">{t.chooseAvatar}</label>
                   <div className="grid grid-cols-8 gap-2">
                     {avatars.map((av) => (
                       <button
@@ -116,7 +191,7 @@ const ProfilePage = () => {
                   onClick={handleSave}
                   className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 font-bold"
                 >
-                  Save Changes
+                  {t.saveChanges}
                 </button>
               </div>
             )}
@@ -124,7 +199,7 @@ const ProfilePage = () => {
 
           {/* Achievements Section */}
           <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl shadow-lg p-8">
-            <h3 className="text-2xl font-bold text-[var(--primary)] mb-6">Your Achievements</h3>
+            <h3 className="text-2xl font-bold text-[var(--primary)] mb-6">{t.achievements}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {badgeList.map((badge) => (
                 <div
@@ -142,7 +217,7 @@ const ProfilePage = () => {
             </div>
             <div className="mt-6 text-center">
               <p className="text-lg text-gray-600">
-                Progress: <span className="font-bold text-[var(--primary)]">{badges.length} / {badgeList.length}</span> unlocked
+                {t.progress}: <span className="font-bold text-[var(--primary)]">{badges.length} / {badgeList.length}</span> {t.unlocked}
               </p>
             </div>
           </div>

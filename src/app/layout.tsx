@@ -10,8 +10,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Financial Literacy Game",
-  description: "An interactive game to improve financial literacy for students in Bharat.",
+  title: "भारत अर्थ-AI Quest - Financial Literacy Game",
+  description: "Bharat Arth-AI Quest: Master financial literacy through AI-powered games. शिक्षार्थियों के लिए एक इंटरैक्टिव खेल",
 };
 
 export default function RootLayout({
