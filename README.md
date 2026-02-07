@@ -151,6 +151,16 @@ c:\student-financial-study-game
 
 ---
 
+## ☁️ Deployment
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new).
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+> **Note:** If you are experiencing issues with Vercel deployment, please check the [Vercel Status Page](https://www.vercel-status.com/) for ongoing incidents.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions to make financial literacy accessible to everyone!

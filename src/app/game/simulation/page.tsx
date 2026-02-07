@@ -236,13 +236,13 @@ export default function FinancialSimulationPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-end gap-2 mb-3">
             <button
-              onClick={() => setLanguage('hi')}
+              onClick={() => setCurrentLang('hi')}
               className={`px-3 py-1 rounded-full text-sm font-semibold border ${currentLang === 'hi' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
             >
               हिन्दी
             </button>
             <button
-              onClick={() => setLanguage('en')}
+              onClick={() => setCurrentLang('en')}
               className={`px-3 py-1 rounded-full text-sm font-semibold border ${currentLang === 'en' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
             >
               English
@@ -306,9 +306,9 @@ export default function FinancialSimulationPage() {
               >
                 <div className="text-4xl mb-3">{themeGroup.icon}</div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition">
-                  {themeCopy[currentLang][themeGroup.theme].title}
+                  {themeCopy[currentLang][themeGroup.theme as keyof typeof themeCopy.en].title}
                 </h2>
-                <p className="text-sm text-gray-600 mb-3">{themeCopy[currentLang][themeGroup.theme].desc}</p>
+                <p className="text-sm text-gray-600 mb-3">{themeCopy[currentLang][themeGroup.theme as keyof typeof themeCopy.en].desc}</p>
                 <p className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full inline-block">
                   {themeGroup.scenarios.length} {t.scenariosLabel}
                 </p>
@@ -375,7 +375,7 @@ export default function FinancialSimulationPage() {
           >
             {t.back}
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-center">{theme.icon} {themeCopy[currentLang][theme.theme].title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center">{theme.icon} {themeCopy[currentLang][theme.theme as keyof typeof themeCopy.en].title}</h1>
           <div className="text-right">
             <p className="text-xs sm:text-sm text-gray-600">{t.scenarioLabel} {currentScenarioIdx + 1}/{theme.scenarios.length}</p>
           </div>

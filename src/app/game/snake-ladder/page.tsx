@@ -341,6 +341,7 @@ const SnakeLadderPage = () => {
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
   const [lastQuestionId, setLastQuestionId] = useState<number | null>(null);
   const [activity, setActivity] = useState<string[]>([]);
+  const [questionOrder, setQuestionOrder] = useState<Question[]>(questions);
   
   const { speak } = useTextToSpeech();
 
