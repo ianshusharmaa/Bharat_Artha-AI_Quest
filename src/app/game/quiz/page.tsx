@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { questions, Question } from '@/data/questions';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 const translations = {
   hi: {
@@ -71,7 +73,7 @@ const translations = {
 };
 
 const QuizPage = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+  const { language: lang, setLanguage: setLang } = useLanguage();
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'all'>('all');
   const [showDifficultySelect, setShowDifficultySelect] = useState(true);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
@@ -85,6 +87,8 @@ const QuizPage = () => {
   const [timerActive, setTimerActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [feedbackText, setFeedbackText] = useState<string | null>(null);
+  
+  const { speak } = useTextToSpeech();
 
   const t = translations[lang];
 
@@ -96,39 +100,13 @@ const QuizPage = () => {
   } as const;
 
   const speakFeedback = (isCorrect: boolean) => {
-    if (typeof window === 'undefined') return;
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-    const enText = isCorrect ? 'Correct answer.' : 'Wrong answer.';
-    const hiText = isCorrect ? 'आपका उत्तर सही है।' : 'आपका उत्तर गलत है।';
-    try {
-      synth.cancel();
-      const enUtterance = new SpeechSynthesisUtterance(enText);
-      enUtterance.lang = 'en-US';
-      enUtterance.rate = 0.95;
-      enUtterance.pitch = 1;
-      enUtterance.volume = 1;
-
-      const hiUtterance = new SpeechSynthesisUtterance(hiText);
-      hiUtterance.lang = 'hi-IN';
-      hiUtterance.rate = 0.95;
-      hiUtterance.pitch = 1;
-      hiUtterance.volume = 1;
-
-      synth.speak(enUtterance);
-      synth.speak(hiUtterance);
-    } catch {
-      // ignore audio errors
-    }
+    speak(
+      isCorrect ? 'सही जवाब' : 'गलत जवाब', // Native Hindi
+      isCorrect ? 'Sahi Javaab' : 'Galat Javaab', // Romanized Hindi (fallback)
+      isCorrect ? 'Correct answer.' : 'Wrong answer.', // English
+      lang
+    );
   };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
-  }, []);
 
   useEffect(() => {
     const soundSetting = localStorage.getItem('soundEnabled');
@@ -136,15 +114,6 @@ const QuizPage = () => {
       setSoundEnabled(JSON.parse(soundSetting));
     }
   }, []);
-
-  useEffect(() => {
-    if (timerActive && timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && timerActive) {
-      handleTimeUp();
-    }
-  }, [timeLeft, timerActive]);
 
   const handleTimeUp = () => {
     setTimerActive(false);
@@ -166,6 +135,15 @@ const QuizPage = () => {
     }, 1800);
   };
 
+  useEffect(() => {
+    if (timerActive && timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && timerActive) {
+      handleTimeUp();
+    }
+  }, [timeLeft, timerActive]);
+
   const startQuiz = (selectedDifficulty: 'easy' | 'medium' | 'hard' | 'all') => {
     setDifficulty(selectedDifficulty);
     const filtered = selectedDifficulty === 'all' 
@@ -185,9 +163,7 @@ const QuizPage = () => {
 
   const setLanguage = (newLang: 'hi' | 'en') => {
     setLang(newLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lang', newLang);
-    }
+    // Local storage update is now handled by context
   };
 
   const unlockQuizMasterBadge = (finalScore: number) => {
@@ -242,9 +218,9 @@ const QuizPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--background)]">
-      <header className="bg-[var(--navbar-bg)] shadow-md p-4 flex justify-between items-center" style={{ boxShadow: 'var(--navbar-shadow)' }}>
-        <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+    <div className="flex flex-col min-h-screen bg-transparent">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-indigo-100 p-4 flex justify-between items-center sticky top-16 z-40 rounded-xl mx-4 mt-4">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{t.title}</h1>
         <div className="flex gap-2">
           <button
             onClick={() => setLanguage('hi')}

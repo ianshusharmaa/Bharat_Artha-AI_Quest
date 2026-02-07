@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Achievements from '@/components/Achievements';
+import { useLanguage } from '@/context/LanguageContext';
 
 const translations = {
   hi: {
@@ -29,15 +30,7 @@ const translations = {
 } as const;
 
 const GamePage = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
-  }, []);
+  const { language: lang } = useLanguage();
 
   const t = translations[lang];
 
@@ -45,35 +38,58 @@ const GamePage = () => {
     <div className="flex flex-col items-center min-h-screen bg-[var(--background)] p-8">
       <h1 className="text-4xl font-extrabold text-[var(--primary)] mb-10 tracking-tight">{t.title}</h1>
       <main className="flex-grow w-full">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 px-4">
         {/* <Profile /> removed: undefined component */}
-            <Link href="/game/quiz">
-            <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl shadow-lg p-8 text-center cursor-pointer transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
-              <h2 className="text-3xl font-bold text-[var(--primary)] mb-4">{t.quizTitle}</h2>
-              <p className="text-[var(--foreground)] opacity-80">{t.quizDesc}</p>
+          <Link href="/game/story">
+            <div className="h-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-400/30 rounded-3xl shadow-xl p-8 text-center cursor-pointer transform hover:scale-105 hover:-rotate-1 transition-all duration-300 hover:shadow-2xl group">
+               <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <span className="text-4xl">📖</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3 drop-shadow-md">Story Mode</h2>
+              <p className="text-white/90 font-medium text-lg leading-relaxed">{lang === 'hi' ? 'कहानी के माध्यम से सीखें' : 'Learn through interactive stories'}</p>
+            </div>
+          </Link>
+          <Link href="/game/quiz">
+            <div className="h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-2 border-indigo-400/30 rounded-3xl shadow-xl p-8 text-center cursor-pointer transform hover:scale-105 hover:rotate-1 transition-all duration-300 hover:shadow-2xl group">
+              <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <span className="text-4xl">📝</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3 drop-shadow-md">{t.quizTitle}</h2>
+              <p className="text-white/90 font-medium text-lg leading-relaxed">{t.quizDesc}</p>
             </div>
           </Link>
           <Link href="/game/simulation">
-            <div className="bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 border border-blue-600 rounded-2xl shadow-lg p-8 text-center cursor-pointer transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
-              <h2 className="text-3xl font-bold text-white mb-4">{t.simTitle}</h2>
-              <p className="text-white opacity-90">{t.simDesc}</p>
+            <div className="h-full bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 border-2 border-cyan-400/30 rounded-3xl shadow-xl p-8 text-center cursor-pointer transform hover:scale-105 hover:-rotate-1 transition-all duration-300 hover:shadow-2xl group">
+               <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <span className="text-4xl">💳</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3 drop-shadow-md">{t.simTitle}</h2>
+              <p className="text-white/90 font-medium text-lg leading-relaxed">{t.simDesc}</p>
             </div>
           </Link>
           <Link href="/game/story-map">
-            <div className="bg-gradient-to-br from-purple-500 to-pink-500 border border-purple-600 rounded-2xl shadow-lg p-8 text-center cursor-pointer transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
-              <h2 className="text-3xl font-bold text-white mb-4">{t.mapTitle}</h2>
-              <p className="text-white opacity-90">{t.mapDesc}</p>
+            <div className="h-full bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 border-2 border-orange-400/30 rounded-3xl shadow-xl p-8 text-center cursor-pointer transform hover:scale-105 hover:rotate-1 transition-all duration-300 hover:shadow-2xl group">
+               <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <span className="text-4xl">🗺️</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3 drop-shadow-md">{t.mapTitle}</h2>
+              <p className="text-white/90 font-medium text-lg leading-relaxed">{t.mapDesc}</p>
             </div>
           </Link>
           <Link href="/game/snake-ladder">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-500 border border-emerald-600 rounded-2xl shadow-lg p-8 text-center cursor-pointer transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
-              <h2 className="text-3xl font-bold text-white mb-4">{t.snakeTitle}</h2>
-              <p className="text-white opacity-90">{t.snakeDesc}</p>
+            <div className="h-full bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 border-2 border-emerald-400/30 rounded-3xl shadow-xl p-8 text-center cursor-pointer transform hover:scale-105 hover:-rotate-1 transition-all duration-300 hover:shadow-2xl group">
+               <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <span className="text-4xl">🐍</span>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-3 drop-shadow-md">{t.snakeTitle}</h2>
+              <p className="text-white/90 font-medium text-lg leading-relaxed">{t.snakeDesc}</p>
             </div>
           </Link>
         </div>
       </main>
-      <Achievements />
+      <div className="mt-12 w-full max-w-4xl">
+         <Achievements />
+      </div>
     </div>
   );
 };

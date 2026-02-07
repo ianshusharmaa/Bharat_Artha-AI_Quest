@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/context/LanguageContext';
 
 const translations = {
   hi: {
@@ -20,17 +21,9 @@ const translations = {
 } as const;
 
 const Navbar = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+  const { language: lang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
-  }, []);
 
   const t = translations[lang];
   const navItems = [
@@ -41,13 +34,18 @@ const Navbar = () => {
 
   return (
     <nav
-      className="bg-[var(--navbar-bg)] shadow-md p-4"
+      className="sticky top-0 z-50 bg-[var(--navbar-bg)] backdrop-blur-md border-b border-indigo-50 p-4 transition-all"
       style={{ boxShadow: 'var(--navbar-shadow)' }}
     >
-      <div className="max-w-6xl mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-3">
-          <Image src="/sounds/logo.png" alt="Logo" width={40} height={40} className="drop-shadow-md" priority />
-          <span className="text-xl font-extrabold text-[var(--primary)] tracking-tight">{t.brand}</span>
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative transform group-hover:scale-110 transition-transform duration-300">
+             <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-30 group-hover:opacity-75 blur"></div>
+             <Image src="/sounds/logo.png" alt="Logo" width={45} height={45} className="relative drop-shadow-md rounded-full bg-white p-1" priority />
+          </div>
+          <span className="text-2xl font-black bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight">
+            {t.brand}
+          </span>
         </Link>
 
         <button
@@ -61,7 +59,7 @@ const Navbar = () => {
           {isOpen ? '✕' : '☰'}
         </button>
 
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-6 items-center">
           {navItems.map((item) => (
             <NavItem key={item.href} href={item.href} label={item.label} active={pathname.startsWith(item.href)} />
           ))}

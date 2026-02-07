@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LocalizedText {
   en: string;
@@ -261,7 +262,7 @@ const questions: Question[] = [
 ];
 
 const StoryMapPage = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+  const { language: lang, setLanguage: setLang } = useLanguage();
   const [position, setPosition] = useState(0);
   const [money, setMoney] = useState(1000);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -304,10 +305,7 @@ const StoryMapPage = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
+    // Language loading handled by context
 
     const soundSetting = localStorage.getItem('soundEnabled');
     if (soundSetting !== null) {
@@ -322,9 +320,6 @@ const StoryMapPage = () => {
 
   const setLanguage = (newLang: 'hi' | 'en') => {
     setLang(newLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lang', newLang);
-    }
   };
 
   const handleAnswer = (answerIndex: number) => {
@@ -386,10 +381,10 @@ const StoryMapPage = () => {
   const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-green-50">
-      <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
+    <div className="flex flex-col min-h-screen bg-transparent">
+      <header className="bg-white/90 backdrop-blur-md shadow-sm border-b border-indigo-100 p-4 sticky top-16 z-40 rounded-xl mx-4 mt-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-green-600 bg-clip-text text-transparent">{t.title}</h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLanguage('hi')}

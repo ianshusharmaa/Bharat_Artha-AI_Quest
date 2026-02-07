@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 const languages = [
   { code: "en", label: "English" },
@@ -36,15 +37,12 @@ const translations = {
 };
 
 export default function Home() {
-  const [selectedLang, setSelectedLang] = useState("en");
+  const { language, setLanguage } = useLanguage();
   const router = useRouter();
 
-  const t = translations[selectedLang as keyof typeof translations] || translations.en;
+  const t = translations[language];
 
   const handleStart = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("lang", selectedLang);
-    }
     router.push("/game");
   };
 
@@ -64,8 +62,8 @@ export default function Home() {
           {languages.map((lang) => (
             <button
               key={lang.code}
-              onClick={() => setSelectedLang(lang.code)}
-              className={`px-6 py-3 rounded-full font-semibold border-2 transition-all duration-200 ${selectedLang === lang.code ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}
+              onClick={() => setLanguage(lang.code as "en" | "hi")}
+              className={`px-6 py-3 rounded-full font-semibold border-2 transition-all duration-200 ${language === lang.code ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}
             >
               {lang.label}
             </button>

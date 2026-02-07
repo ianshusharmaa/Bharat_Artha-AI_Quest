@@ -6,15 +6,26 @@
 
 
 :root {
-  --background: #fff;
-  --foreground: #1a202c;
-  --primary: #2563eb;
-  --secondary: #f472b6;
-  --accent: #fbbf24;
-  --navbar-bg: #fff;
-  --navbar-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
-  --card-bg: #f9fafb;
-  --card-border: #e5e7eb;
+  /* Dynamic Vivid Theme */
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  
+  /* Primary: Trustworthy Financial Blue */
+  --primary: #2563eb; 
+  --primary-dark: #1e40af;
+  
+  /* Secondary: Playful Learning Purple */
+  --secondary: #9333ea;
+  
+  /* Accent: Success Green & Money Gold */
+  --accent: #f59e0b;
+  --success: #10b981;
+  
+  /* Component Colors */
+  --navbar-bg: rgba(255, 255, 255, 0.9); /* Glassmorphism base */
+  --navbar-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
 }
 
 @theme inline {
@@ -25,9 +36,11 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #f0f9ff 0%, #eef2ff 50%, #fef2f2 100%);
+  background-attachment: fixed; /* Parallax-like fixed background */
   color: var(--foreground);
   font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
 }
 
 /* Custom animations */

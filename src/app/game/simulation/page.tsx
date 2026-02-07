@@ -1,7 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { allFinancialScenarios, SimulationScenario } from '@/data/financialThemes';
 import { OfflineAudioNarrator } from '@/components/OfflineAudioNarrator';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface PlayerStats {
   money: number;
@@ -17,6 +19,7 @@ interface CompletedDecision {
 }
 
 export default function FinancialSimulationPage() {
+  const { language: currentLang, setLanguage: setCurrentLang } = useLanguage();
   const translations = {
     hi: {
       heroTitle: '💳 वित्तीय जीवन सिम्युलेटर',
@@ -78,7 +81,6 @@ export default function FinancialSimulationPage() {
     }
   } as const;
 
-  const [currentLang, setCurrentLang] = useState<'hi' | 'en'>('hi');
   const [currentThemeIdx, setCurrentThemeIdx] = useState<number | null>(null);
   const [currentScenarioIdx, setCurrentScenarioIdx] = useState(0);
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
@@ -95,6 +97,8 @@ export default function FinancialSimulationPage() {
   const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
   const [badges, setBadges] = useState<string[]>([]);
   const [showBadges, setShowBadges] = useState(false);
+
+  const { speak } = useTextToSpeech();
 
   const t = translations[currentLang];
 
@@ -147,38 +151,16 @@ export default function FinancialSimulationPage() {
     }
   } as const;
 
-  const setLanguage = (lang: 'hi' | 'en') => {
-    setCurrentLang(lang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lang', lang);
-    }
+  const speakFeedback = (type: 'correct' | 'incorrect') => {
+    const isCorrect = type === 'correct';
+    const key = isCorrect ? 'goodText' : 'badText';
+    speak(
+      translations['hi'][key],
+      translations['en'][key], // Fallback text (English)
+      translations['en'][key], // English text
+      currentLang
+    );
   };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setCurrentLang(savedLang);
-    }
-  }, []);
-
-  const speakFeedback = (text: string, type: 'correct' | 'incorrect') => {
-    if (typeof window === 'undefined') return;
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
-    utterance.rate = 0.95;
-    utterance.pitch = type === 'correct' ? 1.05 : 0.9;
-    utterance.volume = 1;
-    synth.speak(utterance);
-  };
-
-  useEffect(() => {
-    if (!feedbackText || !feedbackType) return;
-    speakFeedback(feedbackText, feedbackType);
-  }, [feedbackText, feedbackType]);
 
 
   const handleThemeSelect = (idx: number) => {
@@ -211,7 +193,7 @@ export default function FinancialSimulationPage() {
     const nextText = isCorrect ? t.goodText : t.badText;
     setFeedbackType(nextType);
     setFeedbackText(nextText);
-    speakFeedback(nextText, nextType);
+    speakFeedback(nextType);
     
     setPlayerStats(newStats);
     setDecisions([...decisions, { scenario, chosenIndex: choiceIdx, stats: newStats }]);
@@ -250,7 +232,7 @@ export default function FinancialSimulationPage() {
 
   if (currentThemeIdx === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50 p-4 sm:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-100/50 via-purple-100/50 to-indigo-100/50 p-4 sm:p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-end gap-2 mb-3">
             <button
@@ -384,7 +366,7 @@ export default function FinancialSimulationPage() {
   const progress = ((currentScenarioIdx + 1) / allFinancialScenarios[currentThemeIdx].scenarios.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-red-50 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button

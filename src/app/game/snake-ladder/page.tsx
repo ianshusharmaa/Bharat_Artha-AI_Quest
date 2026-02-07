@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface LocalizedText {
   en: string;
@@ -323,7 +325,7 @@ const ladders: Record<number, number> = {
 const boardSize = 30;
 
 const SnakeLadderPage = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+  const { language: lang, setLanguage: setLang } = useLanguage();
   const [position, setPosition] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -337,37 +339,20 @@ const SnakeLadderPage = () => {
   const [streak, setStreak] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastMoneyChange, setLastMoneyChange] = useState(0);
-  const [questionOrder, setQuestionOrder] = useState<Question[]>([]);
   const [lastQuestionId, setLastQuestionId] = useState<number | null>(null);
   const [activity, setActivity] = useState<string[]>([]);
+  
+  const { speak } = useTextToSpeech();
 
   const t = translations[lang];
 
   const speakFeedback = (wasCorrect: boolean) => {
-    if (typeof window === 'undefined') return;
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-    try {
-      const enText = wasCorrect ? 'Correct answer.' : 'Wrong answer.';
-      const hiText = wasCorrect ? 'आपका उत्तर सही है।' : 'आपका उत्तर गलत है।';
-      synth.cancel();
-      const enUtterance = new SpeechSynthesisUtterance(enText);
-      enUtterance.lang = 'en-US';
-      enUtterance.rate = 0.95;
-      enUtterance.pitch = 1;
-      enUtterance.volume = 1;
-
-      const hiUtterance = new SpeechSynthesisUtterance(hiText);
-      hiUtterance.lang = 'hi-IN';
-      hiUtterance.rate = 0.95;
-      hiUtterance.pitch = 1;
-      hiUtterance.volume = 1;
-
-      synth.speak(enUtterance);
-      synth.speak(hiUtterance);
-    } catch {
-      // ignore audio errors
-    }
+    speak(
+      wasCorrect ? 'सही जवाब' : 'गलत जवाब',
+      wasCorrect ? 'Sahi Javaab' : 'Galat Javaab',
+      wasCorrect ? 'Correct answer.' : 'Wrong answer.',
+      lang
+    );
   };
 
   const shuffleQuestions = (avoidId?: number | null) => {
@@ -385,18 +370,7 @@ const SnakeLadderPage = () => {
 
   const setLanguage = (newLang: 'hi' | 'en') => {
     setLang(newLang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lang', newLang);
-    }
   };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
-  }, []);
 
   useEffect(() => {
     setMessage(translations[lang].answerQuestions);
@@ -489,7 +463,6 @@ const SnakeLadderPage = () => {
 
       setSelected(null);
       setShowResult(false);
-      setLastQuestionId(question.id);
       setCurrentQuestionIndex(prev => {
         if (prev + 1 >= questionOrder.length) {
           setQuestionOrder(shuffleQuestions(question.id));
@@ -514,7 +487,6 @@ const SnakeLadderPage = () => {
     setStreak(0);
     setLastMoneyChange(0);
     setLastQuestionId(null);
-    setQuestionOrder(shuffleQuestions(null));
     setActivity([]);
   };
 
@@ -523,11 +495,11 @@ const SnakeLadderPage = () => {
   const profit = money - 1000;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--background)]">
-      <header className="bg-[var(--navbar-bg)] shadow-md p-4" style={{ boxShadow: 'var(--navbar-shadow)' }}>
+    <div className="flex flex-col min-h-screen bg-transparent">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-emerald-100 p-4 sticky top-16 z-40 rounded-xl mx-4 mt-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--primary)]">{t.title}</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{t.title}</h1>
             <p className="text-sm text-[var(--foreground)] opacity-70">{t.questionMode}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -571,41 +543,54 @@ const SnakeLadderPage = () => {
 
       <main className="flex-grow p-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-[var(--card-border)]">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-[var(--primary)]">{t.boardTitle}</h2>
-              <div className="text-sm text-gray-600">{t.position}: {position}/{boardSize}</div>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{t.boardTitle}</h2>
+              <div className="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">{t.position}: <span className="text-emerald-600">{position}/{boardSize}</span></div>
             </div>
-            <div className="mb-4">
-              <div className="w-full h-2 bg-gray-200 rounded-full">
+            <div className="mb-6">
+              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 <div
-                  className="h-2 bg-[var(--primary)] rounded-full transition-all duration-500"
+                  className="h-3 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-500"
                   style={{ width: `${(position / boardSize) * 100}%` }}
                 ></div>
               </div>
-              <div className="mt-2 flex justify-between text-xs text-gray-600">
-                <span>{t.accuracyLabel}: {accuracy}%</span>
-                <span>{t.streak}: {streak}</span>
-                <span>{t.money}: ₹{money}</span>
+              <div className="mt-2 flex justify-between text-xs font-medium text-gray-500">
+                <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded border border-purple-100">{t.accuracyLabel}: {accuracy}%</span>
+                <span className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded border border-yellow-100">{t.streak}: {streak}</span>
+                <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100">{t.money}: ₹{money}</span>
               </div>
             </div>
-            <div className="grid grid-cols-5 gap-2">
-              {board.map(cell => (
+            <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
+              {board.map(cell => {
+                 // Classic Snake & Ladder zigzag layout logic would be complex, keeping simple grid for now but improving visuals
+                 // Actually, let's just make the cells look nicer
+                 const isPlayerHere = cell === position;
+                 const isLadder = ladders[cell];
+                 const isSnake = snakes[cell];
+                 
+                 let cellColor = 'bg-white';
+                 if (isLadder) cellColor = 'bg-green-50 border-green-200';
+                 if (isSnake) cellColor = 'bg-red-50 border-red-200';
+                 if (isPlayerHere) cellColor = 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg scale-110 z-10';
+
+                 return (
                 <div
                   key={cell}
-                  className={`relative h-16 rounded-lg border flex items-center justify-center text-sm font-semibold transition-all ${
-                    cell === position ? 'bg-blue-500 text-white scale-105' : 'bg-gray-50 text-gray-700'
-                  }`}
+                  className={`relative aspect-square rounded-xl border-2 flex items-center justify-center text-sm font-bold transition-all duration-300 ${cellColor} ${!isPlayerHere && 'hover:bg-gray-50'} shadow-sm`}
                 >
                   {cell}
-                  {ladders[cell] && <span className="absolute top-1 right-1 text-green-600">🪜</span>}
-                  {snakes[cell] && <span className="absolute top-1 right-1 text-red-600">🐍</span>}
+                  {ladders[cell] && <span className="absolute top-1 right-1 text-base">🪜</span>}
+                  {snakes[cell] && <span className="absolute top-1 right-1 text-base">🐍</span>}
+                  {isPlayerHere && <span className="absolute -top-2 -right-2 text-xl animate-bounce">📍</span>}
                 </div>
-              ))}
+              )})}
             </div>
-            <div className="mt-4 text-sm text-gray-700">
-              <p>🪜 Ladders: {Object.keys(ladders).join(', ')} → {Object.values(ladders).join(', ')}</p>
-              <p>🐍 Snakes: {Object.keys(snakes).join(', ')} → {Object.values(snakes).join(', ')}</p>
+            <div className="mt-6 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <div className="flex flex-wrap gap-4 justify-center">
+                 <span className="flex items-center gap-1"><span className="text-xl">🪜</span> Ladders: <span className="font-mono text-emerald-600">{Object.keys(ladders).join(', ')}</span></span>
+                 <span className="flex items-center gap-1"><span className="text-xl">🐍</span> Snakes: <span className="font-mono text-red-600">{Object.keys(snakes).join(', ')}</span></span>
+              </div>
             </div>
           </div>
 

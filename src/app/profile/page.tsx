@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 const avatars = ['👤', '👨', '👩', '🧑', '👦', '👧', '🧒', '👨‍💼', '👩‍💼', '🧑‍🎓', '👨‍🎓', '👩‍🎓', '🦸', '🦹', '🧙', '🧚'];
 
@@ -51,7 +52,7 @@ const translations = {
 };
 
 const ProfilePage = () => {
-  const [lang, setLang] = useState<'hi' | 'en'>('hi');
+  const { language: lang, setLanguage: setLang } = useLanguage();
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState('👤');
   const [badges, setBadges] = useState<number[]>([]);
@@ -64,10 +65,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const savedLang = localStorage.getItem('lang') as 'hi' | 'en' | null;
-    if (savedLang === 'hi' || savedLang === 'en') {
-      setLang(savedLang);
-    }
+    // Language logic moved to context
 
     const savedUsername = localStorage.getItem('username') || 'Player';
     const savedAvatar = localStorage.getItem('avatar') || '👤';
