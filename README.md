@@ -182,4 +182,4 @@ For any queries, please check the [USER_GUIDE.md](USER_GUIDE.md) or contact the 
 ---
 
 *Built with ❤️ for Financial Literacy in India* 
-<!--updated-->
+<!--Updated-->
